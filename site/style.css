@@ -1,3 +1,17 @@
+:root {
+  --concrete: #d9dde3;
+  --ink: #14171c;
+  --copper: #b87333;
+  --copper-dark: #8a5524;
+  --copper-hi: #d4a574;
+  --soap: #3db8b0;
+  --sheen: #c45a8c;
+  --seal: #1f7a6b;
+  --fail: #e85d04;
+  --brass: #c49a5c;
+  --brass-dark: #8a6a32;
+}
+
 @font-face {
   font-family: Sora;
   src: url("fonts/sora.woff2") format("woff2");
@@ -15,20 +29,6 @@
   src: url("fonts/source-code-pro.woff2") format("woff2");
   font-weight: 100 900;
   font-display: swap;
-}
-
-:root {
-  --concrete: #d9dde3;
-  --ink: #14171c;
-  --copper: #b87333;
-  --copper-dark: #8a5524;
-  --copper-hi: #d4a574;
-  --soap: #3db8b0;
-  --sheen: #c45a8c;
-  --seal: #1f7a6b;
-  --fail: #e85d04;
-  --brass: #c49a5c;
-  --brass-dark: #8a6a32;
 }
 
 *, *::before, *::after { box-sizing: border-box; }
@@ -78,11 +78,15 @@ code, .cmd code, .term code, .or code, .fit-body code, .t-sum code {
 }
 .shop-bar nav a:hover { color: var(--copper-dark); }
 
-/* —— HERO —— */
+/* —— HERO: manifold fills first viewport; no marketing stack below —— */
 .hero {
   position: relative;
-  min-height: min(100vh, 920px);
-  min-height: min(100dvh, 920px);
+  /* Manifold IS the first viewport — no empty concrete stack below */
+  width: 100%;
+  height: calc(100vh - 52px);
+  height: calc(100dvh - 52px);
+  max-height: 920px;
+  min-height: 520px;
   display: flex; flex-direction: column;
   background: var(--concrete);
   overflow: hidden;
@@ -102,9 +106,19 @@ code, .cmd code, .term code, .or code, .fit-body code, .t-sum code {
 .manifold {
   position: relative; z-index: 1;
   width: 100%;
-  height: clamp(460px, 70vh, 720px);
+  flex: 1 1 auto;
+  height: 100%;
+  min-height: 100%;
   display: block;
 }
+.manifold-desk {
+  width: 100%;
+  height: 100%;
+  flex: 1;
+}
+.manifold-desk { display: block; }
+.manifold-mob { display: none; }
+
 .plate-h1 {
   font-family: Sora, sans-serif; font-weight: 800; font-size: 20px;
   fill: var(--ink); letter-spacing: .06em;
@@ -113,6 +127,8 @@ code, .cmd code, .term code, .or code, .fit-body code, .t-sum code {
   font-family: "Work Sans", sans-serif; font-size: 10px; font-weight: 600;
   fill: var(--copper-dark); letter-spacing: .16em;
 }
+.m-plate { font-size: 16px; }
+.m-plate-sub { font-size: 9px; letter-spacing: .1em; }
 .j-badge {
   font-family: Sora, sans-serif; font-size: 9px; font-weight: 800;
   fill: #d9dde3; letter-spacing: .04em;
@@ -133,18 +149,19 @@ code, .cmd code, .term code, .or code, .fit-body code, .t-sum code {
   font-family: Sora, sans-serif; font-size: 14px; font-weight: 600;
   fill: var(--copper-dark); letter-spacing: .08em;
 }
+.board-lede {
+  font-family: Sora, sans-serif; font-weight: 800; font-size: 18px; fill: var(--ink);
+}
+.board-sub {
+  font-family: "Work Sans", sans-serif; font-size: 12px; font-weight: 600; fill: var(--copper-dark);
+}
+.board-lede-sm {
+  font-family: Sora, sans-serif; font-weight: 800; font-size: 11px; fill: var(--ink);
+}
 
-.hero-rail {
-  position: relative; z-index: 2;
-  max-width: 720px; margin: -1.5rem auto 2rem; padding: 0 1.25rem;
-}
-.lede {
-  font-family: Sora, sans-serif; font-weight: 800;
-  font-size: clamp(1.25rem, 2.8vw, 1.7rem);
-  line-height: 1.25; margin: 0 0 .55rem;
-}
-.sub { margin: 0 0 1rem; font-size: 1.02rem; max-width: 36rem; }
 .replay {
+  position: absolute; z-index: 3;
+  right: 1rem; bottom: 1rem;
   font-family: Sora, sans-serif; font-weight: 600; font-size: .85rem;
   background: var(--copper); color: #fff; border: none;
   padding: .55rem 1rem; cursor: pointer; letter-spacing: .04em;
@@ -152,10 +169,9 @@ code, .cmd code, .term code, .or code, .fit-body code, .t-sum code {
 .replay:hover { background: var(--copper-dark); }
 .replay:focus-visible { outline: 3px solid var(--fail); outline-offset: 2px; }
 
-/* needle default */
-.needle { transform-origin: 0 0; transform: rotate(-100deg); }
+.needle, .needle-mob { transform-origin: 0 0; transform: rotate(-100deg); }
 
-/* —— spine pipe between sections —— */
+/* —— spine —— */
 .pipe-spine {
   height: 28px; position: relative;
   background: linear-gradient(180deg, #e0b07a 0%, #b87333 45%, #6e3f18 100%);
@@ -166,15 +182,14 @@ code, .cmd code, .term code, .or code, .fit-body code, .t-sum code {
   background: linear-gradient(180deg, #f0d4b0, transparent); opacity: .55;
 }
 
-/* —— bays hanging from clamps —— */
+/* —— bays —— */
 .bay {
   max-width: 920px; margin: 0 auto; padding: 2.25rem 1.25rem 1.5rem;
   position: relative;
 }
 .clamp-row {
   display: flex; align-items: center; gap: .75rem;
-  margin-bottom: 1rem;
-  padding-top: .25rem;
+  margin-bottom: 1rem; padding-top: .25rem;
 }
 .u-bolt {
   width: 22px; height: 28px; flex-shrink: 0;
@@ -198,12 +213,12 @@ code, .cmd code, .term code, .or code, .fit-body code, .t-sum code {
 }
 .bay-lede { margin: 0 0 1.25rem; max-width: 40rem; }
 
-/* hang tag = install */
+/* hang tag = install — commands wrap, never clip */
 .hang-tag {
   position: relative;
   background: linear-gradient(180deg, #e2c078, var(--brass) 40%, #a87e3e);
   border: 3px solid var(--copper-dark);
-  padding: 2rem 1.5rem 1.5rem;
+  padding: 2rem 1.25rem 1.5rem;
   max-width: 640px;
   box-shadow: 6px 8px 0 color-mix(in srgb, var(--ink) 12%, transparent);
 }
@@ -221,20 +236,30 @@ code, .cmd code, .term code, .or code, .fit-body code, .t-sum code {
   background: var(--ink); color: var(--concrete);
   padding: 1rem 1.1rem; margin: 0;
   border-left: 4px solid var(--copper);
-  overflow-x: auto; font-size: .82rem; line-height: 1.45;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+  font-size: .78rem; line-height: 1.5;
 }
+.hang-tag .cmd code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.hang-tag .cmd-go { margin-top: .35rem; font-size: .72rem; word-break: break-all; overflow-wrap: anywhere; }
 .hang-tag .copy {
-  display: block; margin: .65rem 0 0 auto;
+  display: block; margin: .55rem 0 0 auto;
   font-family: Sora, sans-serif; font-weight: 600; font-size: .78rem;
   background: var(--copper-dark); color: #fff; border: none;
   padding: .4rem .85rem; cursor: pointer; letter-spacing: .06em;
 }
 .hang-tag .copy:hover { background: var(--ink); }
 .hang-tag .copy:focus-visible { outline: 3px solid var(--fail); outline-offset: 2px; }
-.or { font-size: .9rem; color: color-mix(in srgb, var(--ink) 78%, transparent); margin: .85rem 0 0; }
-.hint { font-size: .88rem; margin: .5rem 0 0; }
+.or { font-size: .9rem; color: color-mix(in srgb, var(--ink) 78%, transparent); margin: .85rem 0 .35rem; text-align: center; }
+.hint { font-size: .88rem; margin: .75rem 0 0; }
 
-/* joint fittings — NOT a 3-col SaaS card grid; horizontal pipe of fittings */
+/* joint fittings — SEAL dry vs OPEN bubbling */
 .joint-manifold {
   display: flex; flex-wrap: wrap; gap: 0;
   border: 4px solid var(--copper-dark);
@@ -261,6 +286,9 @@ code, .cmd code, .term code, .or code, .fit-body code, .t-sum code {
   box-shadow: inset 0 0 0 6px var(--fail), 0 0 0 3px #6e3f18;
   position: relative;
 }
+.fitting.seal .nut {
+  box-shadow: inset 0 0 0 6px var(--seal), 0 0 0 3px #6e3f18;
+}
 .fitting .bubbles-mini {
   position: absolute; left: 50%; top: 4px; width: 10px; height: 10px;
   margin-left: 10px; border-radius: 50%;
@@ -271,6 +299,7 @@ code, .cmd code, .term code, .or code, .fit-body code, .t-sum code {
     8px -10px 0 -2px color-mix(in srgb, var(--sheen) 50%, var(--soap)),
     -4px -16px 0 -3px color-mix(in srgb, var(--soap) 40%, transparent);
 }
+.fitting.seal .bubbles-mini { display: none; }
 .fitting .fit-id {
   display: block; font-family: "Source Code Pro", monospace; font-weight: 600;
   font-size: .72rem; text-align: center; color: #fff;
@@ -281,6 +310,7 @@ code, .cmd code, .term code, .or code, .fit-body code, .t-sum code {
   font-size: .62rem; letter-spacing: .1em; text-align: center;
   color: #ffe8d6; margin: .2rem 0 .45rem;
 }
+.fitting.seal .fit-state { color: #d4f5ef; }
 .fitting .fit-body {
   display: none; font-size: .82rem; line-height: 1.4;
   background: var(--concrete); color: var(--ink);
@@ -288,15 +318,18 @@ code, .cmd code, .term code, .or code, .fit-body code, .t-sum code {
   border: 2px solid var(--copper-dark);
 }
 .fitting[aria-expanded="true"] .fit-body { display: block; }
-.fitting:hover .nut, .fitting:focus-visible .nut {
+.fitting.leak:hover .nut, .fitting.leak:focus-visible .nut {
   box-shadow: inset 0 0 0 6px var(--fail), 0 0 0 4px #14171c;
+}
+.fitting.seal:hover .nut, .fitting.seal:focus-visible .nut {
+  box-shadow: inset 0 0 0 6px var(--seal), 0 0 0 4px #14171c;
 }
 .fitting:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; z-index: 1; }
 .fineprint {
   font-size: .9rem; color: color-mix(in srgb, var(--ink) 72%, transparent); margin: 1rem 0 0;
 }
 
-/* clipboard work order */
+/* clipboard — term wraps, no mid-word clip */
 .clipboard {
   background: #ebe6dc;
   border: 1px solid color-mix(in srgb, var(--ink) 18%, transparent);
@@ -331,17 +364,25 @@ code, .cmd code, .term code, .or code, .fit-body code, .t-sum code {
   background: var(--ink); color: #cfd3d8;
   padding: 1.1rem 1.15rem; margin: 0;
   border-top: 3px solid var(--copper);
-  font-size: .8rem; overflow-x: auto; line-height: 1.45;
+  font-size: .78rem; line-height: 1.5;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.term code {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
 }
 .term .fail { color: #e85d04; font-weight: 600; }
 .term .ok { color: #3db8b0; }
 .term .b { color: #fff; font-weight: 600; }
 .demo {
-  display: block; margin: 1rem auto 0; max-width: 100%;
+  display: block; margin: 1rem auto 0; max-width: 100%; height: auto;
   border: 2px solid var(--copper-dark);
 }
 
-/* ticket rack — work orders clipped to pipe, not card grid */
 .ticket-rack {
   list-style: none; margin: 0; padding: 0;
   display: flex; flex-direction: column; gap: 0;
@@ -378,20 +419,30 @@ code, .cmd code, .term code, .or code, .fit-body code, .t-sum code {
   color: color-mix(in srgb, var(--ink) 55%, transparent); font-size: .9rem;
 }
 
+/* —— mobile: vertical bay, never crop —— */
 @media (max-width: 720px) {
-  .manifold { height: min(62vh, 560px); }
-  .plate-h1 { font-size: 14px; }
-  .plate-sub { font-size: 8px; }
+  .manifold-desk { display: none; }
+  .manifold-mob { display: block; }
+  .hero {
+    height: auto;
+    max-height: none;
+    min-height: 0;
+    overflow: visible;
+  }
+  .manifold-mob {
+    height: auto;
+    width: 100%;
+    max-height: none;
+  }
   .fitting { flex: 1 1 100%; border-right: none; border-bottom: 2px solid color-mix(in srgb, var(--copper-dark) 45%, transparent); }
   .fitting:last-child { border-bottom: none; }
   .ticket a { grid-template-columns: 1fr; gap: .2rem; }
   .shop-bar nav a:nth-child(1), .shop-bar nav a:nth-child(2) { display: none; }
-  .hero-rail { margin-top: 0; }
+  .hang-tag .cmd { font-size: .72rem; }
+  .replay { right: .75rem; bottom: .75rem; }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .needle { transform: rotate(42deg) !important; }
-  .soap-wipe { /* end state set by JS */ }
-  .bubble { /* end state set by JS */ }
+  .needle, .needle-mob { transform: rotate(42deg) !important; }
   .fitting .bubbles-mini { animation: none; }
 }

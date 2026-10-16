@@ -146,41 +146,65 @@ def card(w, h, path):
     print(path)
 
 def demo_gif():
+    """Terminal replay matching Bay 03 — concrete bezel so it never reads as a dead black void."""
     frames = []
-    w, h = 720, 240
-    mono = font(MONO, 16)
+    W, H = 760, 380
+    pad = 20
+    tw, th = W - 2 * pad, H - 2 * pad
+    mono = font(MONO, 15)
+    mono_sm = font(MONO, 13)
+    title_f = font(SORA, 13)
     lines = [
-        "$ failshut audit",
-        "",
-        "FAIL OPEN — 1 finding(s) where policy may not hold:",
-        "",
-        "[1] ask-vs-effective  (codex)",
-        "    file:     ~/.codex/config.toml",
-        "    evidence: approval_policy=\"ask\" but sandbox_approval=false",
-        "    fix:      Set sandbox_approval=true so Ask cannot be skipped",
+        ("$ failshut audit", SOAP, mono),
+        ("", CONCRETE, mono),
+        ("FAIL OPEN — 1 finding(s) where policy may not hold:", FAIL, mono),
+        ("", CONCRETE, mono),
+        ("[1] ask-vs-effective  (codex)", (255, 255, 255), mono),
+        ("    file:     ~/.codex/config.toml", CONCRETE, mono_sm),
+        ('    evidence: approval_policy="ask"', CONCRETE, mono_sm),
+        ("              but sandbox_approval=false", CONCRETE, mono_sm),
+        ("    fix:      Set sandbox_approval=true", CONCRETE, mono_sm),
+        ("              so Ask cannot be skipped", CONCRETE, mono_sm),
+        ("", CONCRETE, mono),
+        ("Summary: 1 FAIL OPEN · 5 FAIL SHUT · 1 config", CONCRETE, mono),
     ]
-    for n in range(1, len(lines) + 1):
-        im = Image.new("RGB", (w, h), INK)
+    steps = list(range(1, len(lines) + 1)) + [len(lines)] * 12
+    for n in steps:
+        im = Image.new("RGB", (W, H), CONCRETE)
         d = ImageDraw.Draw(im)
-        d.rectangle([0, 0, w, 8], fill=COPPER)
-        y = 24
-        for line in lines[:n]:
-            col = FAIL if "FAIL OPEN" in line else (SOAP if line.startswith("$") else (217, 221, 227))
-            if line.startswith("[1]"):
-                col = (255, 255, 255)
-            d.text((20, y), line[:90], fill=col, font=mono)
-            y += 22
+        for i in range(0, W, 37):
+            for j in range(0, H, 41):
+                d.point((i + (j % 7), j + (i % 5)), fill=(196, 200, 206))
+        d.rectangle([pad - 4, pad - 4, pad + tw + 4, pad + th + 4], outline=COPPER, width=4)
+        d.rectangle([pad, pad, pad + tw, pad + th], fill=INK)
+        d.rectangle([pad, pad, pad + tw, pad + 28], fill=COPPER)
+        d.rectangle([pad, pad + 28, pad + tw, pad + 32], fill=COPPER_D)
+        d.text((pad + 12, pad + 14), "JOB #FS-001  ·  failshut audit", fill=(255, 245, 230), font=title_f, anchor="lm")
+        d.rectangle([pad + tw - 118, pad + 4, pad + tw - 8, pad + 24], outline=(255, 200, 160), width=2)
+        d.text((pad + tw - 63, pad + 14), "FAIL OPEN", fill=(255, 220, 190), font=title_f, anchor="mm")
+        y = pad + 48
+        for line, col, fnt in lines[:n]:
+            if "Summary" in line:
+                d.text((pad + 20, y), "Summary: 1 ", fill=CONCRETE, font=fnt)
+                bbox = d.textbbox((pad + 20, y), "Summary: 1 ", font=fnt)
+                d.text((bbox[2], y), "FAIL OPEN", fill=FAIL, font=fnt)
+                bbox2 = d.textbbox((bbox[2], y), "FAIL OPEN", font=fnt)
+                d.text((bbox2[2], y), " · 5 FAIL SHUT · 1 config", fill=SOAP, font=fnt)
+            else:
+                d.text((pad + 20, y), line, fill=col, font=fnt)
+            y += 20 if fnt is mono_sm else 22
+        if n < len(lines):
+            d.rectangle([pad + 20, y, pad + 28, y + 14], fill=SOAP)
         frames.append(im)
-    frames += [frames[-1]] * 8
     frames[0].save(
         SITE / "demo.gif",
         save_all=True,
         append_images=frames[1:],
-        duration=260,
+        duration=160,
         loop=0,
-        optimize=True,
+        optimize=False,
     )
-    print("demo.gif")
+    print("demo.gif", len(frames), "frames")
 
 if __name__ == "__main__":
     logo512()

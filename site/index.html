@@ -42,15 +42,15 @@
 
 <main id="main">
 
-<!-- ========== HERO: full-bleed copper manifold ========== -->
+<!-- ========== HERO: manifold fills the first viewport ========== -->
 <section class="hero" id="manifold" aria-label="Copper manifold soap-bubble leak check">
   <div class="shop-wall" aria-hidden="true"></div>
 
-  <svg class="manifold" viewBox="0 0 1440 780" preserveAspectRatio="xMidYMid slice" role="img" aria-labelledby="manifold-title manifold-desc">
+  <!-- DESKTOP: horizontal manifold — meet (never slice/crop) -->
+  <svg class="manifold manifold-desk" viewBox="0 0 1440 780" preserveAspectRatio="xMidYMid slice" role="img" aria-labelledby="manifold-title manifold-desc">
     <title id="manifold-title">Pressurized copper refrigerant manifold</title>
     <desc id="manifold-desc">A workshop copper pipe run with brass stamped nameplate. After pressure rises and soap is wiped on, soap bubbles nucleate only on the fail-open joint; sealed joints stay dry.</desc>
     <defs>
-      <!-- copper body: soft specular, not glass -->
       <linearGradient id="cu-v" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0%" stop-color="#e0b07a"/>
         <stop offset="18%" stop-color="#d4a574"/>
@@ -96,130 +96,109 @@
         <circle cx="40" cy="8" r=".7" fill="#c4c8ce" opacity=".35"/>
         <circle cx="16" cy="40" r=".4" fill="#b0b4bc" opacity=".4"/>
       </pattern>
-      <!-- clip for soap wipe -->
       <clipPath id="pipe-run-clip">
-        <rect x="60" y="318" width="1320" height="64"/>
+        <rect x="60" y="248" width="1320" height="64"/>
       </clipPath>
     </defs>
 
-    <!-- shop floor / wall wash -->
     <rect width="1440" height="780" fill="url(#concrete)"/>
-    <rect width="1440" height="780" fill="url(#concrete)" opacity=".5"/>
-    <!-- subtle wall shadow under manifold -->
-    <ellipse cx="720" cy="620" rx="580" ry="28" fill="#14171c" opacity=".06"/>
 
-    <!-- ===== BACK WALL PIPE SUPPORTS / hangers ===== -->
+    <!-- supports -->
     <g class="supports" opacity=".85">
-      <rect x="160" y="40" width="14" height="280" fill="#8a9098"/>
-      <rect x="520" y="40" width="14" height="280" fill="#8a9098"/>
-      <rect x="880" y="40" width="14" height="280" fill="#8a9098"/>
-      <rect x="1240" y="40" width="14" height="280" fill="#8a9098"/>
-      <!-- U-bolts -->
-      <path d="M157 300 h20 v28 h-20 z M157 300 a10 10 0 0 1 20 0" fill="none" stroke="#5a6068" stroke-width="3"/>
-      <path d="M517 300 h20 v28 h-20 z M517 300 a10 10 0 0 1 20 0" fill="none" stroke="#5a6068" stroke-width="3"/>
-      <path d="M877 300 h20 v28 h-20 z M877 300 a10 10 0 0 1 20 0" fill="none" stroke="#5a6068" stroke-width="3"/>
-      <path d="M1237 300 h20 v28 h-20 z M1237 300 a10 10 0 0 1 20 0" fill="none" stroke="#5a6068" stroke-width="3"/>
+      <rect x="160" y="20" width="14" height="230" fill="#8a9098"/>
+      <rect x="520" y="20" width="14" height="230" fill="#8a9098"/>
+      <rect x="880" y="20" width="14" height="230" fill="#8a9098"/>
+      <rect x="1240" y="20" width="14" height="230" fill="#8a9098"/>
+      <path d="M157 230 h20 v28 h-20 z M157 230 a10 10 0 0 1 20 0" fill="none" stroke="#5a6068" stroke-width="3"/>
+      <path d="M517 230 h20 v28 h-20 z M517 230 a10 10 0 0 1 20 0" fill="none" stroke="#5a6068" stroke-width="3"/>
+      <path d="M877 230 h20 v28 h-20 z M877 230 a10 10 0 0 1 20 0" fill="none" stroke="#5a6068" stroke-width="3"/>
+      <path d="M1237 230 h20 v28 h-20 z M1237 230 a10 10 0 0 1 20 0" fill="none" stroke="#5a6068" stroke-width="3"/>
     </g>
 
-    <!-- ===== VERTICAL RISERS (from top) ===== -->
-    <!-- riser 1 -->
+    <!-- risers -->
     <g class="riser">
-      <rect x="188" y="70" width="36" height="280" rx="18" fill="url(#cu-v)"/>
-      <rect x="194" y="70" width="8" height="280" fill="url(#cu-hi)" opacity=".55"/>
-      <rect x="188" y="70" width="36" height="14" rx="4" fill="#8a5524"/>
-      <!-- flare nut -->
-      <rect x="180" y="200" width="52" height="22" rx="3" fill="#8a5524"/>
-      <rect x="184" y="203" width="44" height="6" fill="#d4a574" opacity=".4"/>
+      <rect x="188" y="50" width="36" height="230" rx="18" fill="url(#cu-v)"/>
+      <rect x="194" y="50" width="8" height="230" fill="url(#cu-hi)" opacity=".55"/>
+      <rect x="188" y="50" width="36" height="14" rx="4" fill="#8a5524"/>
+      <rect x="180" y="150" width="52" height="22" rx="3" fill="#8a5524"/>
+      <rect x="184" y="153" width="44" height="6" fill="#d4a574" opacity=".4"/>
     </g>
-    <!-- riser 2 (leak branch) -->
     <g class="riser">
-      <rect x="548" y="70" width="36" height="280" rx="18" fill="url(#cu-v)"/>
-      <rect x="554" y="70" width="8" height="280" fill="url(#cu-hi)" opacity=".55"/>
-      <rect x="548" y="70" width="36" height="14" rx="4" fill="#8a5524"/>
-      <rect x="540" y="200" width="52" height="22" rx="3" fill="#8a5524"/>
-      <rect x="544" y="203" width="44" height="6" fill="#d4a574" opacity=".4"/>
+      <rect x="548" y="50" width="36" height="230" rx="18" fill="url(#cu-v)"/>
+      <rect x="554" y="50" width="8" height="230" fill="url(#cu-hi)" opacity=".55"/>
+      <rect x="548" y="50" width="36" height="14" rx="4" fill="#8a5524"/>
+      <rect x="540" y="150" width="52" height="22" rx="3" fill="#8a5524"/>
+      <rect x="544" y="153" width="44" height="6" fill="#d4a574" opacity=".4"/>
     </g>
-    <!-- riser 3 -->
     <g class="riser">
-      <rect x="908" y="70" width="36" height="280" rx="18" fill="url(#cu-v)"/>
-      <rect x="914" y="70" width="8" height="280" fill="url(#cu-hi)" opacity=".55"/>
-      <rect x="908" y="70" width="36" height="14" rx="4" fill="#8a5524"/>
-      <rect x="900" y="200" width="52" height="22" rx="3" fill="#8a5524"/>
-      <rect x="904" y="203" width="44" height="6" fill="#d4a574" opacity=".4"/>
+      <rect x="908" y="50" width="36" height="230" rx="18" fill="url(#cu-v)"/>
+      <rect x="914" y="50" width="8" height="230" fill="url(#cu-hi)" opacity=".55"/>
+      <rect x="908" y="50" width="36" height="14" rx="4" fill="#8a5524"/>
+      <rect x="900" y="150" width="52" height="22" rx="3" fill="#8a5524"/>
+      <rect x="904" y="153" width="44" height="6" fill="#d4a574" opacity=".4"/>
     </g>
 
-    <!-- elbow tops (short horizontal stubs) -->
-    <rect x="188" y="70" width="120" height="36" rx="18" fill="url(#cu-h)"/>
-    <rect x="194" y="76" width="108" height="8" fill="url(#cu-hi)" opacity=".5"/>
-    <rect x="548" y="70" width="100" height="36" rx="18" fill="url(#cu-h)"/>
-    <rect x="554" y="76" width="88" height="8" fill="url(#cu-hi)" opacity=".5"/>
-    <rect x="908" y="70" width="100" height="36" rx="18" fill="url(#cu-h)"/>
-    <rect x="914" y="76" width="88" height="8" fill="url(#cu-hi)" opacity=".5"/>
+    <rect x="188" y="50" width="120" height="36" rx="18" fill="url(#cu-h)"/>
+    <rect x="194" y="56" width="108" height="8" fill="url(#cu-hi)" opacity=".5"/>
+    <rect x="548" y="50" width="100" height="36" rx="18" fill="url(#cu-h)"/>
+    <rect x="554" y="56" width="88" height="8" fill="url(#cu-hi)" opacity=".5"/>
+    <rect x="908" y="50" width="100" height="36" rx="18" fill="url(#cu-h)"/>
+    <rect x="914" y="56" width="88" height="8" fill="url(#cu-hi)" opacity=".5"/>
 
-    <!-- ===== MAIN HORIZONTAL HEADER ===== -->
+    <!-- header run (raised) -->
     <g class="header-run">
-      <rect x="60" y="330" width="1320" height="48" rx="24" fill="url(#cu-h)"/>
-      <rect x="70" y="336" width="1300" height="10" rx="5" fill="url(#cu-hi)" opacity=".55"/>
-      <rect x="70" y="358" width="1300" height="6" rx="3" fill="#6e3f18" opacity=".35"/>
-      <!-- end caps / unions -->
-      <rect x="48" y="322" width="28" height="64" rx="6" fill="#8a5524"/>
-      <rect x="1364" y="322" width="28" height="64" rx="6" fill="#8a5524"/>
-      <!-- coupling rings along run -->
-      <rect x="340" y="324" width="18" height="60" rx="3" fill="#8a5524"/>
-      <rect x="700" y="324" width="18" height="60" rx="3" fill="#8a5524"/>
-      <rect x="1060" y="324" width="18" height="60" rx="3" fill="#8a5524"/>
+      <rect x="60" y="260" width="1320" height="48" rx="24" fill="url(#cu-h)"/>
+      <rect x="70" y="266" width="1300" height="10" rx="5" fill="url(#cu-hi)" opacity=".55"/>
+      <rect x="70" y="288" width="1300" height="6" rx="3" fill="#6e3f18" opacity=".35"/>
+      <rect x="48" y="252" width="28" height="64" rx="6" fill="#8a5524"/>
+      <rect x="1364" y="252" width="28" height="64" rx="6" fill="#8a5524"/>
+      <rect x="340" y="254" width="18" height="60" rx="3" fill="#8a5524"/>
+      <rect x="700" y="254" width="18" height="60" rx="3" fill="#8a5524"/>
+      <rect x="1060" y="254" width="18" height="60" rx="3" fill="#8a5524"/>
     </g>
 
-    <!-- tee junctions where risers meet header -->
     <g class="tees">
-      <rect x="178" y="318" width="56" height="72" rx="8" fill="#8a5524"/>
-      <rect x="186" y="326" width="40" height="10" fill="#d4a574" opacity=".35"/>
-      <rect x="538" y="318" width="56" height="72" rx="8" fill="#8a5524"/>
-      <rect x="546" y="326" width="40" height="10" fill="#d4a574" opacity=".35"/>
-      <rect x="898" y="318" width="56" height="72" rx="8" fill="#8a5524"/>
-      <rect x="906" y="326" width="40" height="10" fill="#d4a574" opacity=".35"/>
+      <rect x="178" y="248" width="56" height="72" rx="8" fill="#8a5524"/>
+      <rect x="186" y="256" width="40" height="10" fill="#d4a574" opacity=".35"/>
+      <rect x="538" y="248" width="56" height="72" rx="8" fill="#8a5524"/>
+      <rect x="546" y="256" width="40" height="10" fill="#d4a574" opacity=".35"/>
+      <rect x="898" y="248" width="56" height="72" rx="8" fill="#8a5524"/>
+      <rect x="906" y="256" width="40" height="10" fill="#d4a574" opacity=".35"/>
     </g>
 
-
-    <!-- hex compression nuts flanking joints -->
     <g class="hex-nuts" fill="#8a5524" stroke="#6e3f18" stroke-width="1">
-      <polygon points="168,354 178,338 198,338 208,354 198,370 178,370"/>
-      <polygon points="244,354 254,338 274,338 284,354 274,370 254,370"/>
-      <polygon points="528,354 538,338 558,338 568,354 558,370 538,370"/>
-      <polygon points="604,354 614,338 634,338 644,354 634,370 614,370"/>
-      <polygon points="888,354 898,338 918,338 928,354 918,370 898,370"/>
-      <polygon points="964,354 974,338 994,338 1004,354 994,370 974,370"/>
+      <polygon points="168,284 178,268 198,268 208,284 198,300 178,300"/>
+      <polygon points="244,284 254,268 274,268 284,284 274,300 254,300"/>
+      <polygon points="528,284 538,268 558,268 568,284 558,300 538,300"/>
+      <polygon points="604,284 614,268 634,268 644,284 634,300 614,300"/>
+      <polygon points="888,284 898,268 918,268 928,284 918,300 898,300"/>
+      <polygon points="964,284 974,268 994,268 1004,284 994,300 974,300"/>
     </g>
-    <!-- service port valves (Schrader-style caps) -->
     <g class="schraders">
-      <rect x="400" y="300" width="14" height="30" rx="2" fill="#8a5524"/>
-      <rect x="398" y="292" width="18" height="10" rx="2" fill="#6e3f18"/>
-      <rect x="760" y="300" width="14" height="30" rx="2" fill="#8a5524"/>
-      <rect x="758" y="292" width="18" height="10" rx="2" fill="#6e3f18"/>
+      <rect x="400" y="230" width="14" height="30" rx="2" fill="#8a5524"/>
+      <rect x="398" y="222" width="18" height="10" rx="2" fill="#6e3f18"/>
+      <rect x="760" y="230" width="14" height="30" rx="2" fill="#8a5524"/>
+      <rect x="758" y="222" width="18" height="10" rx="2" fill="#6e3f18"/>
     </g>
 
-    <!-- ===== JOINTS on header ===== -->
-    <!-- Joint A: seal-ok (left) -->
-    <g class="joint seal" data-state="seal" transform="translate(206 354)">
+    <!-- Joint A SEAL -->
+    <g class="joint seal" data-state="seal" transform="translate(206 284)">
       <circle r="34" fill="#6e3f18"/>
       <circle r="28" fill="#8a5524"/>
       <circle r="18" fill="#1f7a6b"/>
       <circle r="18" fill="none" stroke="#145c52" stroke-width="2"/>
       <text class="j-badge" text-anchor="middle" y="5">SEAL</text>
-      <!-- dry — no bubbles -->
     </g>
-
-    <!-- Joint B: FAIL OPEN / leak (center) — THE demo leak -->
-    <g class="joint leak" data-state="leak" transform="translate(566 354)">
+    <!-- Joint B FAIL OPEN -->
+    <g class="joint leak" data-state="leak" transform="translate(566 284)">
       <circle r="34" fill="#6e3f18"/>
       <circle r="28" fill="#8a5524"/>
       <circle r="18" fill="#e85d04"/>
       <circle r="18" fill="none" stroke="#a33f00" stroke-width="2"/>
       <text class="j-badge" text-anchor="middle" y="5">OPEN</text>
     </g>
-
-    <!-- Joint C: seal-ok (right) -->
-    <g class="joint seal" data-state="seal" transform="translate(926 354)">
+    <!-- Joint C SEAL -->
+    <g class="joint seal" data-state="seal" transform="translate(926 284)">
       <circle r="34" fill="#6e3f18"/>
       <circle r="28" fill="#8a5524"/>
       <circle r="18" fill="#1f7a6b"/>
@@ -227,13 +206,11 @@
       <text class="j-badge" text-anchor="middle" y="5">SEAL</text>
     </g>
 
-    <!-- soap wipe film along header (animated width via JS) -->
     <g clip-path="url(#pipe-run-clip)">
-      <rect class="soap-wipe" x="60" y="318" width="0" height="64" fill="url(#soap-brush)" filter="url(#soft-blur)"/>
+      <rect class="soap-wipe" x="60" y="248" width="0" height="64" fill="url(#soap-brush)" filter="url(#soft-blur)"/>
     </g>
 
-    <!-- bubbles nucleating on leak joint only -->
-    <g class="bubble-field" transform="translate(566 354)" aria-hidden="true">
+    <g class="bubble-field" transform="translate(566 284)" aria-hidden="true">
       <circle class="bubble" data-i="0" cx="4" cy="-8" r="0" fill="url(#soap-fill)" stroke="#3db8b0" stroke-width="2" opacity="0"/>
       <circle class="bubble" data-i="1" cx="26" cy="-40" r="0" fill="url(#soap-fill)" stroke="#3db8b0" stroke-width="1.6" opacity="0"/>
       <circle class="bubble" data-i="2" cx="-22" cy="-56" r="0" fill="url(#soap-fill)" stroke="#c45a8c" stroke-width="1.6" opacity="0"/>
@@ -244,30 +221,25 @@
       <circle class="bubble" data-i="7" cx="8" cy="-190" r="0" fill="url(#soap-fill)" stroke="#3db8b0" stroke-width="1.2" opacity="0"/>
     </g>
 
-    <!-- ===== BRASS NAMEPLATE on left elbow = h1 ===== -->
-    <g class="nameplate" transform="translate(250 95)">
-      <!-- mounting straps -->
+    <!-- BRASS NAMEPLATE = h1 object in scene -->
+    <g class="nameplate" transform="translate(250 75)">
       <rect x="-8" y="18" width="16" height="48" rx="2" fill="#8a5524"/>
       <rect x="328" y="18" width="16" height="48" rx="2" fill="#8a5524"/>
-      <!-- plate -->
       <rect width="336" height="84" rx="5" fill="url(#brass-g)" stroke="#6e3f18" stroke-width="3"/>
       <rect x="8" y="8" width="320" height="68" rx="2" fill="none" stroke="#8a6a32" stroke-width="1.5" opacity=".55"/>
-      <!-- rivets -->
       <circle cx="18" cy="18" r="4" fill="#8a5524"/><circle cx="18" cy="18" r="1.5" fill="#c49a5c"/>
       <circle cx="318" cy="18" r="4" fill="#8a5524"/><circle cx="318" cy="18" r="1.5" fill="#c49a5c"/>
       <circle cx="18" cy="66" r="4" fill="#8a5524"/><circle cx="18" cy="66" r="1.5" fill="#c49a5c"/>
       <circle cx="318" cy="66" r="4" fill="#8a5524"/><circle cx="318" cy="66" r="1.5" fill="#c49a5c"/>
-      <!-- stamped text = accessible h1 mirrored in HTML too -->
       <text x="168" y="40" text-anchor="middle" class="plate-h1">FAILSHUT — LEAK CHECK</text>
       <text x="168" y="64" text-anchor="middle" class="plate-sub">PRESSURIZE · WIPE SOAP · WATCH JOINTS</text>
     </g>
 
-    <!-- ===== PRESSURE GAUGE ===== -->
-    <g class="gauge" transform="translate(1220 160)">
+    <!-- GAUGE -->
+    <g class="gauge" transform="translate(1220 110)">
       <circle r="64" fill="#14171c"/>
       <circle r="58" fill="#2a2e34" stroke="#b87333" stroke-width="5"/>
       <circle r="50" fill="#d9dde3"/>
-      <!-- tick marks -->
       <g stroke="#14171c" stroke-width="2">
         <line x1="0" y1="-42" x2="0" y2="-34" transform="rotate(-90)"/>
         <line x1="0" y1="-42" x2="0" y2="-34" transform="rotate(-45)"/>
@@ -280,45 +252,208 @@
       <circle r="2.5" fill="#e85d04"/>
       <text class="gauge-lbl" y="72" text-anchor="middle">PSI</text>
       <text class="gauge-state" y="90" text-anchor="middle">0</text>
-      <!-- stem to pipe -->
-      <rect x="-8" y="64" width="16" height="110" fill="url(#cu-v)"/>
-      <rect x="-4" y="64" width="4" height="110" fill="url(#cu-hi)" opacity=".4"/>
+      <rect x="-8" y="64" width="16" height="90" fill="url(#cu-v)"/>
+      <rect x="-4" y="64" width="4" height="90" fill="url(#cu-hi)" opacity=".4"/>
     </g>
 
-    <!-- soap bottle on shelf (props) -->
-    <g class="soap-bottle" transform="translate(80 480)">
+    <!-- drop legs + lede board HANGING from main header — fills the bay, no empty concrete void -->
+    <g class="drop-legs">
+      <rect x="300" y="308" width="24" height="50" rx="12" fill="url(#cu-v)"/>
+      <rect x="306" y="308" width="6" height="50" fill="url(#cu-hi)" opacity=".45"/>
+      <rect x="1020" y="308" width="24" height="50" rx="12" fill="url(#cu-v)"/>
+      <rect x="1026" y="308" width="6" height="50" fill="url(#cu-hi)" opacity=".45"/>
+    </g>
+
+    <g class="lede-board" transform="translate(340 355)">
+      <rect x="60" y="-18" width="12" height="22" fill="#8a5524"/>
+      <rect x="640" y="-18" width="12" height="22" fill="#8a5524"/>
+      <rect width="720" height="110" rx="3" fill="#ebe6dc" stroke="#8a5524" stroke-width="3"/>
+      <rect x="10" y="8" width="700" height="94" fill="none" stroke="#c49a5c" stroke-width="1" stroke-dasharray="4 3"/>
+      <text x="360" y="42" text-anchor="middle" class="board-lede">Config says DENY. Runtime says ALLOW?</text>
+      <text x="360" y="70" text-anchor="middle" class="board-sub">One command pressurizes Claude Code / Codex / OpenCode —</text>
+      <text x="360" y="92" text-anchor="middle" class="board-sub">and reports every joint that bubbles.</text>
+    </g>
+
+    <!-- return rail under the board -->
+    <g class="return-run" opacity=".95">
+      <rect x="80" y="500" width="1180" height="32" rx="16" fill="url(#cu-h)"/>
+      <rect x="90" y="505" width="1160" height="7" rx="3" fill="url(#cu-hi)" opacity=".5"/>
+      <rect x="68" y="494" width="24" height="44" rx="4" fill="#8a5524"/>
+      <rect x="1248" y="494" width="24" height="44" rx="4" fill="#8a5524"/>
+      <!-- legs from board straps into return -->
+      <rect x="390" y="480" width="14" height="28" fill="#8a5524"/>
+      <rect x="970" y="480" width="14" height="28" fill="#8a5524"/>
+    </g>
+
+    <g class="soap-bottle" transform="translate(90 555)">
       <rect x="0" y="40" width="48" height="70" rx="6" fill="#3db8b0" opacity=".85"/>
       <rect x="8" y="20" width="32" height="24" rx="3" fill="#2a8a84"/>
       <rect x="16" y="8" width="16" height="16" rx="2" fill="#1f7a6b"/>
       <text x="24" y="82" text-anchor="middle" class="prop-lbl">SOAP</text>
     </g>
 
-    <!-- status legend plaque -->
-    <g class="legend-plate" transform="translate(1040 500)">
-      <rect width="320" height="130" rx="4" fill="#c49a5c" stroke="#8a5524" stroke-width="2"/>
-      <rect x="6" y="6" width="308" height="118" rx="2" fill="none" stroke="#8a6a32" stroke-width="1" opacity=".5"/>
-      <circle cx="28" cy="36" r="10" fill="#e85d04"/>
-      <text x="48" y="41" class="leg-txt">Bubbles = FAIL OPEN</text>
-      <circle cx="28" cy="68" r="10" fill="#1f7a6b"/>
-      <text x="48" y="73" class="leg-txt">Dry joint = FAIL SHUT</text>
-      <text class="stage-readout" x="160" y="110" text-anchor="middle">…</text>
+    <g class="legend-plate" transform="translate(170 565)">
+      <rect width="320" height="120" rx="4" fill="#c49a5c" stroke="#8a5524" stroke-width="2"/>
+      <rect x="6" y="6" width="308" height="108" rx="2" fill="none" stroke="#8a6a32" stroke-width="1" opacity=".5"/>
+      <circle cx="28" cy="32" r="10" fill="#e85d04"/>
+      <text x="48" y="37" class="leg-txt">Bubbles = FAIL OPEN</text>
+      <circle cx="28" cy="62" r="10" fill="#1f7a6b"/>
+      <text x="48" y="67" class="leg-txt">Dry joint = FAIL SHUT</text>
+      <text class="stage-readout" x="160" y="100" text-anchor="middle">…</text>
+    </g>
+
+    <!-- tool shelf plaque right of legend -->
+    <g transform="translate(560 580)">
+      <rect width="780" height="90" rx="3" fill="#c4c8ce" stroke="#8a9098" stroke-width="2"/>
+      <text x="24" y="36" class="leg-txt">WORKSHOP FLOOR · STATIC AUDIT STATION</text>
+      <text x="24" y="62" class="board-sub">Exit 1 on FAIL OPEN · Exit 0 if sealed · Claude Code / Codex / OpenCode</text>
+    </g>
+
+    <ellipse cx="720" cy="760" rx="640" ry="16" fill="#14171c" opacity=".07"/>
+  </svg>
+
+  <!-- MOBILE: vertical bay — full plate, gauge, soap, legend, no crop -->
+  <svg class="manifold manifold-mob" viewBox="0 0 390 720" preserveAspectRatio="xMidYMin meet" role="img" aria-hidden="true">
+    <defs>
+      <linearGradient id="m-cu-v" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#e0b07a"/>
+        <stop offset="42%" stop-color="#b87333"/>
+        <stop offset="100%" stop-color="#6e3f18"/>
+      </linearGradient>
+      <linearGradient id="m-cu-h" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#e8c49a"/>
+        <stop offset="48%" stop-color="#b87333"/>
+        <stop offset="100%" stop-color="#5c3714"/>
+      </linearGradient>
+      <linearGradient id="m-cu-hi" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f0d4b0" stop-opacity=".9"/>
+        <stop offset="100%" stop-color="#f0d4b0" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="m-brass" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#e2c078"/>
+        <stop offset="40%" stop-color="#c49a5c"/>
+        <stop offset="100%" stop-color="#8a6a32"/>
+      </linearGradient>
+      <radialGradient id="m-soap" cx="35%" cy="30%" r="65%">
+        <stop offset="0%" stop-color="#9fe8e2" stop-opacity=".55"/>
+        <stop offset="35%" stop-color="#3db8b0" stop-opacity=".75"/>
+        <stop offset="70%" stop-color="#c45a8c" stop-opacity=".55"/>
+        <stop offset="100%" stop-color="#3db8b0" stop-opacity=".25"/>
+      </radialGradient>
+      <linearGradient id="m-brush" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#3db8b0" stop-opacity="0"/>
+        <stop offset="40%" stop-color="#3db8b0" stop-opacity=".45"/>
+        <stop offset="70%" stop-color="#c45a8c" stop-opacity=".35"/>
+        <stop offset="100%" stop-color="#3db8b0" stop-opacity="0"/>
+      </linearGradient>
+      <pattern id="m-concrete" width="48" height="48" patternUnits="userSpaceOnUse">
+        <rect width="48" height="48" fill="#d9dde3"/>
+        <circle cx="8" cy="12" r=".6" fill="#c4c8ce" opacity=".5"/>
+        <circle cx="28" cy="30" r=".5" fill="#b8bcc4" opacity=".4"/>
+      </pattern>
+      <clipPath id="m-pipe-clip">
+        <rect x="155" y="200" width="80" height="360"/>
+      </clipPath>
+    </defs>
+    <rect width="390" height="720" fill="url(#m-concrete)"/>
+
+    <!-- full-width brass plate — never cropped -->
+    <g transform="translate(20 24)">
+      <rect width="350" height="88" rx="5" fill="url(#m-brass)" stroke="#6e3f18" stroke-width="3"/>
+      <rect x="8" y="8" width="334" height="72" rx="2" fill="none" stroke="#8a6a32" stroke-width="1.5" opacity=".55"/>
+      <circle cx="16" cy="16" r="4" fill="#8a5524"/><circle cx="334" cy="16" r="4" fill="#8a5524"/>
+      <circle cx="16" cy="72" r="4" fill="#8a5524"/><circle cx="334" cy="72" r="4" fill="#8a5524"/>
+      <text x="175" y="42" text-anchor="middle" class="plate-h1 m-plate">FAILSHUT — LEAK CHECK</text>
+      <text x="175" y="68" text-anchor="middle" class="plate-sub m-plate-sub">PRESSURIZE · WIPE SOAP · WATCH</text>
+    </g>
+
+    <!-- vertical copper riser (main bay) -->
+    <rect x="171" y="130" width="48" height="430" rx="24" fill="url(#m-cu-v)"/>
+    <rect x="179" y="130" width="10" height="430" fill="url(#m-cu-hi)" opacity=".55"/>
+    <rect x="160" y="200" width="70" height="22" rx="3" fill="#8a5524"/>
+    <rect x="160" y="340" width="70" height="22" rx="3" fill="#8a5524"/>
+    <rect x="160" y="480" width="70" height="22" rx="3" fill="#8a5524"/>
+
+    <!-- Joint SEAL (top) -->
+    <g class="joint seal" data-state="seal" transform="translate(195 230)">
+      <circle r="30" fill="#6e3f18"/><circle r="24" fill="#8a5524"/>
+      <circle r="16" fill="#1f7a6b"/><circle r="16" fill="none" stroke="#145c52" stroke-width="2"/>
+      <text class="j-badge" text-anchor="middle" y="5">SEAL</text>
+    </g>
+    <!-- Joint OPEN (mid) — bubbles -->
+    <g class="joint leak" data-state="leak" transform="translate(195 370)">
+      <circle r="30" fill="#6e3f18"/><circle r="24" fill="#8a5524"/>
+      <circle r="16" fill="#e85d04"/><circle r="16" fill="none" stroke="#a33f00" stroke-width="2"/>
+      <text class="j-badge" text-anchor="middle" y="5">OPEN</text>
+    </g>
+    <!-- Joint SEAL (bottom) -->
+    <g class="joint seal" data-state="seal" transform="translate(195 510)">
+      <circle r="30" fill="#6e3f18"/><circle r="24" fill="#8a5524"/>
+      <circle r="16" fill="#1f7a6b"/><circle r="16" fill="none" stroke="#145c52" stroke-width="2"/>
+      <text class="j-badge" text-anchor="middle" y="5">SEAL</text>
+    </g>
+
+    <!-- soap wipe vertical -->
+    <g clip-path="url(#m-pipe-clip)">
+      <rect class="soap-wipe soap-wipe-mob" x="155" y="200" width="80" height="0" fill="url(#m-brush)"/>
+    </g>
+
+    <!-- bubbles on OPEN joint only -->
+    <g class="bubble-field bubble-field-mob" transform="translate(195 370)" aria-hidden="true">
+      <circle class="bubble bubble-mob" data-i="0" cx="18" cy="-6" r="0" fill="url(#m-soap)" stroke="#3db8b0" stroke-width="2" opacity="0"/>
+      <circle class="bubble bubble-mob" data-i="1" cx="36" cy="-36" r="0" fill="url(#m-soap)" stroke="#3db8b0" stroke-width="1.6" opacity="0"/>
+      <circle class="bubble bubble-mob" data-i="2" cx="48" cy="-64" r="0" fill="url(#m-soap)" stroke="#c45a8c" stroke-width="1.6" opacity="0"/>
+      <circle class="bubble bubble-mob" data-i="3" cx="28" cy="-92" r="0" fill="url(#m-soap)" stroke="#3db8b0" stroke-width="1.4" opacity="0"/>
+      <circle class="bubble bubble-mob" data-i="4" cx="52" cy="-118" r="0" fill="url(#m-soap)" stroke="#c45a8c" stroke-width="1.4" opacity="0"/>
+      <circle class="bubble bubble-mob" data-i="5" cx="40" cy="-144" r="0" fill="url(#m-soap)" stroke="#3db8b0" stroke-width="1.2" opacity="0"/>
+      <circle class="bubble bubble-mob" data-i="6" cx="58" cy="-168" r="0" fill="url(#m-soap)" stroke="#c45a8c" stroke-width="1.2" opacity="0"/>
+      <circle class="bubble bubble-mob" data-i="7" cx="34" cy="-190" r="0" fill="url(#m-soap)" stroke="#3db8b0" stroke-width="1.2" opacity="0"/>
+    </g>
+
+    <!-- gauge left -->
+    <g class="gauge gauge-mob" transform="translate(72 280)">
+      <circle r="42" fill="#14171c"/>
+      <circle r="38" fill="#2a2e34" stroke="#b87333" stroke-width="4"/>
+      <circle r="32" fill="#d9dde3"/>
+      <line class="needle needle-mob" x1="0" y1="0" x2="0" y2="-24" stroke="#e85d04" stroke-width="3" stroke-linecap="round"/>
+      <circle r="4" fill="#14171c"/>
+      <text class="gauge-lbl" y="52" text-anchor="middle" font-size="10">PSI</text>
+      <text class="gauge-state gauge-state-mob" y="66" text-anchor="middle" font-size="10">0</text>
+    </g>
+
+    <!-- soap bottle right -->
+    <g transform="translate(300 240)">
+      <rect x="0" y="36" width="40" height="58" rx="5" fill="#3db8b0" opacity=".85"/>
+      <rect x="6" y="18" width="28" height="20" rx="3" fill="#2a8a84"/>
+      <rect x="12" y="8" width="16" height="14" rx="2" fill="#1f7a6b"/>
+      <text x="20" y="72" text-anchor="middle" class="prop-lbl">SOAP</text>
+    </g>
+
+    <!-- legend -->
+    <g transform="translate(24 580)">
+      <rect width="342" height="100" rx="4" fill="#c49a5c" stroke="#8a5524" stroke-width="2"/>
+      <circle cx="24" cy="28" r="9" fill="#e85d04"/>
+      <text x="42" y="32" class="leg-txt" font-size="12">Bubbles = FAIL OPEN</text>
+      <circle cx="24" cy="54" r="9" fill="#1f7a6b"/>
+      <text x="42" y="58" class="leg-txt" font-size="12">Dry joint = FAIL SHUT</text>
+      <text class="stage-readout stage-readout-mob" x="171" y="86" text-anchor="middle" font-size="12">…</text>
+    </g>
+
+    <!-- lede board -->
+    <g transform="translate(24 130)">
+      <rect width="120" height="90" rx="2" fill="#ebe6dc" stroke="#8a5524" stroke-width="2"/>
+      <text x="60" y="28" text-anchor="middle" class="board-lede-sm">Config says</text>
+      <text x="60" y="46" text-anchor="middle" class="board-lede-sm">DENY.</text>
+      <text x="60" y="64" text-anchor="middle" class="board-lede-sm">Runtime says</text>
+      <text x="60" y="82" text-anchor="middle" class="board-lede-sm">ALLOW?</text>
     </g>
   </svg>
 
-  <!-- Visually the plate is the h1; keep a real h1 for a11y/SEO that mirrors the plate -->
   <h1 class="visually-hidden">FAILSHUT — LEAK CHECK</h1>
-
-  <div class="hero-rail">
-    <p class="lede">Config says <strong>DENY</strong>. Runtime says <strong>ALLOW</strong>?</p>
-    <p class="sub">One command pressurizes the permission manifold for Claude Code, Codex, and OpenCode — and reports every joint that bubbles.</p>
-    <button type="button" class="replay" id="replay" hidden>Replay leak test</button>
-  </div>
+  <button type="button" class="replay" id="replay" hidden>Replay leak test</button>
 </section>
 
-<!-- ========== PIPE RUN: sections hang from clamps ========== -->
-<div class="pipe-spine" aria-hidden="true">
-  <div class="spine-bar"></div>
-</div>
+<div class="pipe-spine" aria-hidden="true"><div class="spine-bar"></div></div>
 
 <!-- Install hang-tag -->
 <section class="bay" id="install">
@@ -326,15 +461,17 @@
   <div class="hang-tag">
     <div class="tag-eye" aria-hidden="true"></div>
     <h2>Hang this on your toolbox</h2>
-    <pre class="cmd" id="inst-bin"><code>curl -sL https://github.com/Blackman99/failshut/releases/download/v0.1.0/failshut_0.1.0_linux_amd64.tar.gz | tar xz
-./failshut audit</code></pre>
-    <button type="button" class="copy" data-copy="inst-bin" aria-label="Copy install command">Copy</button>
-    <p class="or">or <code>go install github.com/Blackman99/failshut/cmd/failshut@latest</code></p>
+    <pre class="cmd" id="inst-bin" data-full="curl -sL https://github.com/Blackman99/failshut/releases/download/v0.1.0/failshut_0.1.0_linux_amd64.tar.gz | tar xz &amp;&amp; ./failshut audit"><code>curl -sL …/v0.1.0/failshut_0.1.0_linux_amd64.tar.gz
+  | tar xz &amp;&amp; ./failshut audit</code></pre>
+    <button type="button" class="copy" data-copy="inst-bin" aria-label="Copy full install command">Copy full command</button>
+    <p class="or">or</p>
+    <pre class="cmd cmd-go" id="inst-go" data-full="go install github.com/Blackman99/failshut/cmd/failshut@latest"><code>go install github.com/Blackman99/failshut/&#8203;cmd/failshut@latest</code></pre>
+    <button type="button" class="copy" data-copy="inst-go" aria-label="Copy go install command">Copy</button>
     <p class="hint">Exit <strong>1</strong> on any FAIL OPEN · <strong>0</strong> if sealed or nothing configured.</p>
   </div>
 </section>
 
-<!-- Six leak points as real joints on a secondary manifold -->
+<!-- Six leak points — mix SEAL + OPEN -->
 <section class="bay" id="joints">
   <div class="clamp-row"><span class="u-bolt" aria-hidden="true"></span><span class="bay-tag">BAY 02 · SIX LEAK POINTS</span></div>
   <h2 class="bay-h">Each finding is a joint on the manifold</h2>
@@ -348,6 +485,12 @@
       <span class="fit-state">FAIL OPEN</span>
       <span class="fit-body">Deny on read/grep-like tools the harness may skip (opencode#55728).</span>
     </button>
+    <button type="button" class="fitting seal" role="listitem" data-rule="hook-present" aria-expanded="false">
+      <span class="nut" aria-hidden="true"></span>
+      <span class="fit-id">hook-present</span>
+      <span class="fit-state">SEAL</span>
+      <span class="fit-body">Referenced hook path exists and is executable — dry joint.</span>
+    </button>
     <button type="button" class="fitting leak" role="listitem" data-rule="ask-vs-effective" aria-expanded="false">
       <span class="nut" aria-hidden="true"></span>
       <span class="bubbles-mini" aria-hidden="true"></span>
@@ -355,12 +498,11 @@
       <span class="fit-state">FAIL OPEN</span>
       <span class="fit-body">UI Ask vs <code>sandbox_approval=false</code> / silent escalate (codex#54298, #54440).</span>
     </button>
-    <button type="button" class="fitting leak" role="listitem" data-rule="hook-missing" aria-expanded="false">
+    <button type="button" class="fitting seal" role="listitem" data-rule="deny-covered" aria-expanded="false">
       <span class="nut" aria-hidden="true"></span>
-      <span class="bubbles-mini" aria-hidden="true"></span>
-      <span class="fit-id">hook-missing</span>
-      <span class="fit-state">FAIL OPEN</span>
-      <span class="fit-body">Referenced hook path missing or not executable.</span>
+      <span class="fit-id">deny-covered</span>
+      <span class="fit-state">SEAL</span>
+      <span class="fit-body">Deny rules cover tools the harness actually enforces — no bubble.</span>
     </button>
     <button type="button" class="fitting leak" role="listitem" data-rule="path-traversal-config" aria-expanded="false">
       <span class="nut" aria-hidden="true"></span>
@@ -376,13 +518,6 @@
       <span class="fit-state">FAIL OPEN</span>
       <span class="fit-body">Plan/restrictive profile spawns a general subagent (opencode#55814, codex#54448).</span>
     </button>
-    <button type="button" class="fitting leak" role="listitem" data-rule="ask-auto-allow" aria-expanded="false">
-      <span class="nut" aria-hidden="true"></span>
-      <span class="bubbles-mini" aria-hidden="true"></span>
-      <span class="fit-id">ask-auto-allow</span>
-      <span class="fit-state">FAIL OPEN</span>
-      <span class="fit-body">Hook asks; desktop auto-allows (claude-code#102582).</span>
-    </button>
   </div>
   <p class="fineprint">v0.1 is a <strong>static</strong> auditor — it does not intercept live tool calls. See <a href="docs/">docs</a>.</p>
 </section>
@@ -397,15 +532,21 @@
       <span>TECH · failshut audit</span>
       <span class="wo-stamp">FAIL OPEN</span>
     </header>
-    <pre class="term"><code><span class="fail">FAIL OPEN</span> — 1 finding(s) where policy may not hold:
+    <pre class="term"><code><span class="fail">FAIL OPEN</span> — 1 finding(s)
+where policy may not hold:
 
-<span class="b">[1] ask-vs-effective</span>  (codex)
-    file:     ~/.codex/config.toml
-    evidence: approval_policy="ask" but sandbox_approval=false
-    fix:      Set sandbox_approval=true so Ask cannot be skipped
+<span class="b">[1] ask-vs-effective</span> (codex)
+  file: ~/.codex/config.toml
+  evidence:
+    approval_policy="ask"
+    but sandbox_approval=false
+  fix: Set sandbox_approval=true
+       so Ask cannot be skipped
 
-Summary: <span class="fail">1 FAIL OPEN</span> · <span class="ok">5 FAIL SHUT checks</span> · 1 config(s)</code></pre>
-    <img class="demo" src="demo.gif" width="720" height="240" alt="Terminal recording of failshut audit finding FAIL OPEN"/>
+Summary: <span class="fail">1 FAIL OPEN</span>
+  · <span class="ok">5 FAIL SHUT checks</span>
+  · 1 config(s)</code></pre>
+    <img class="demo" src="demo.gif" width="760" height="380" alt="Terminal recording of failshut audit finding FAIL OPEN on ask-vs-effective"/>
   </div>
 </section>
 
