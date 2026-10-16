@@ -5,131 +5,399 @@
 <meta name="viewport" content="width=device-width, initial-scale=1"/>
 <title>failshut — leak-check for AI agent permission hooks</title>
 <meta name="description" content="Tell you, in one command, whether your AI coding-agent permission hooks and deny/ask rules actually fail shut — or silently fail open."/>
+<meta name="theme-color" content="#d9dde3"/>
+<link rel="canonical" href="https://blackman99.github.io/failshut/"/>
 <meta property="og:title" content="failshut — FAIL OPEN or FAIL SHUT?"/>
 <meta property="og:description" content="Static leak-check for Claude Code / Codex / OpenCode permission configs. One command. Exit 1 if anything fails open."/>
 <meta property="og:image" content="https://blackman99.github.io/failshut/og.png"/>
 <meta property="og:image:width" content="1200"/>
 <meta property="og:image:height" content="630"/>
+<meta property="og:image:alt" content="Copper refrigerant manifold with soap bubbles on a fail-open joint and a brass FAILSHUT nameplate"/>
 <meta property="og:url" content="https://blackman99.github.io/failshut/"/>
 <meta property="og:type" content="website"/>
+<meta property="og:site_name" content="failshut"/>
 <meta name="twitter:card" content="summary_large_image"/>
 <meta name="twitter:title" content="failshut — leak-check for AI agent permissions"/>
 <meta name="twitter:description" content="Config says DENY. Runtime says ALLOW? Find out in one command."/>
 <meta name="twitter:image" content="https://blackman99.github.io/failshut/og.png"/>
 <link rel="icon" href="favicon.svg" type="image/svg+xml"/>
-<link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
-<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;800&family=Source+Code+Pro:wght@400;600&family=Work+Sans:wght@400;600&display=swap" rel="stylesheet"/>
+<link rel="apple-touch-icon" href="logo-512.png"/>
+<link rel="preload" href="fonts/sora.woff2" as="font" type="font/woff2" crossorigin/>
+<link rel="preload" href="fonts/work-sans.woff2" as="font" type="font/woff2" crossorigin/>
 <link rel="stylesheet" href="style.css"/>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"SoftwareApplication","name":"failshut","applicationCategory":"DeveloperApplication","operatingSystem":"Linux, macOS, Windows","license":"https://opensource.org/licenses/MIT","url":"https://blackman99.github.io/failshut/","codeRepository":"https://github.com/Blackman99/failshut","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"},"description":"Static leak-check for AI coding-agent permission hooks and deny/ask rules."}</script>
 </head>
 <body>
-<header class="top">
-  <a class="brand" href="./"><img src="logo.svg" width="36" height="36" alt=""/>failshut</a>
-  <nav>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="shop-bar">
+  <a class="brand" href="./"><img src="logo.svg" width="32" height="32" alt=""/>failshut</a>
+  <nav aria-label="Primary">
+    <a href="#joints">Joints</a>
+    <a href="#install">Install</a>
     <a href="docs/">Docs</a>
     <a href="https://github.com/Blackman99/failshut">GitHub</a>
   </nav>
 </header>
 
-<section class="hero" id="manifold" aria-label="Copper manifold leak check demo">
-  <svg class="pipes" viewBox="0 0 1200 520" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Pressurized copper manifold">
+<main id="main">
+
+<!-- ========== HERO: full-bleed copper manifold ========== -->
+<section class="hero" id="manifold" aria-label="Copper manifold soap-bubble leak check">
+  <div class="shop-wall" aria-hidden="true"></div>
+
+  <svg class="manifold" viewBox="0 0 1440 780" preserveAspectRatio="xMidYMid slice" role="img" aria-labelledby="manifold-title manifold-desc">
+    <title id="manifold-title">Pressurized copper refrigerant manifold</title>
+    <desc id="manifold-desc">A workshop copper pipe run with brass stamped nameplate. After pressure rises and soap is wiped on, soap bubbles nucleate only on the fail-open joint; sealed joints stay dry.</desc>
     <defs>
-      <linearGradient id="cu" x1="0" y1="0" x2="0" y2="1">
-        <stop offset="0%" stop-color="#d4a574"/>
-        <stop offset="45%" stop-color="#b87333"/>
-        <stop offset="100%" stop-color="#8a5524"/>
+      <!-- copper body: soft specular, not glass -->
+      <linearGradient id="cu-v" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#e0b07a"/>
+        <stop offset="18%" stop-color="#d4a574"/>
+        <stop offset="42%" stop-color="#b87333"/>
+        <stop offset="72%" stop-color="#9a5e28"/>
+        <stop offset="100%" stop-color="#6e3f18"/>
       </linearGradient>
-      <linearGradient id="soap" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0%" stop-color="#3db8b0"/>
-        <stop offset="50%" stop-color="#c45a8c"/>
-        <stop offset="100%" stop-color="#3db8b0"/>
+      <linearGradient id="cu-h" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#e8c49a"/>
+        <stop offset="22%" stop-color="#d4a574"/>
+        <stop offset="48%" stop-color="#b87333"/>
+        <stop offset="78%" stop-color="#8a5524"/>
+        <stop offset="100%" stop-color="#5c3714"/>
       </linearGradient>
-      <filter id="soft"><feGaussianBlur stdDeviation="1.2"/></filter>
+      <linearGradient id="cu-hi" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#f0d4b0" stop-opacity=".9"/>
+        <stop offset="100%" stop-color="#f0d4b0" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="brass-g" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#e2c078"/>
+        <stop offset="40%" stop-color="#c49a5c"/>
+        <stop offset="100%" stop-color="#8a6a32"/>
+      </linearGradient>
+      <radialGradient id="soap-fill" cx="35%" cy="30%" r="65%">
+        <stop offset="0%" stop-color="#9fe8e2" stop-opacity=".55"/>
+        <stop offset="35%" stop-color="#3db8b0" stop-opacity=".75"/>
+        <stop offset="70%" stop-color="#c45a8c" stop-opacity=".55"/>
+        <stop offset="100%" stop-color="#3db8b0" stop-opacity=".25"/>
+      </radialGradient>
+      <linearGradient id="soap-brush" x1="0" y1="0" x2="1" y2="0">
+        <stop offset="0%" stop-color="#3db8b0" stop-opacity="0"/>
+        <stop offset="40%" stop-color="#3db8b0" stop-opacity=".45"/>
+        <stop offset="70%" stop-color="#c45a8c" stop-opacity=".35"/>
+        <stop offset="100%" stop-color="#3db8b0" stop-opacity="0"/>
+      </linearGradient>
+      <filter id="soft-blur" x="-20%" y="-20%" width="140%" height="140%">
+        <feGaussianBlur stdDeviation="1.4"/>
+      </filter>
+      <pattern id="concrete" width="48" height="48" patternUnits="userSpaceOnUse">
+        <rect width="48" height="48" fill="#d9dde3"/>
+        <circle cx="8" cy="12" r=".6" fill="#c4c8ce" opacity=".5"/>
+        <circle cx="28" cy="30" r=".5" fill="#b8bcc4" opacity=".4"/>
+        <circle cx="40" cy="8" r=".7" fill="#c4c8ce" opacity=".35"/>
+        <circle cx="16" cy="40" r=".4" fill="#b0b4bc" opacity=".4"/>
+      </pattern>
+      <!-- clip for soap wipe -->
+      <clipPath id="pipe-run-clip">
+        <rect x="60" y="318" width="1320" height="64"/>
+      </clipPath>
     </defs>
-    <!-- horizontal run -->
-    <rect class="pipe" x="40" y="210" width="1120" height="36" rx="18" fill="url(#cu)"/>
-    <rect x="40" y="214" width="1120" height="8" rx="4" fill="#e8c49a" opacity=".35"/>
-    <!-- vertical risers / elbows -->
-    <rect class="pipe" x="180" y="80" width="28" height="160" rx="14" fill="url(#cu)"/>
-    <rect class="pipe" x="520" y="80" width="28" height="160" rx="14" fill="url(#cu)"/>
-    <rect class="pipe" x="860" y="80" width="28" height="160" rx="14" fill="url(#cu)"/>
-    <!-- elbow tags / joints -->
-    <g class="joint seal" data-joint="0" transform="translate(194 246)">
-      <circle r="22" fill="#8a5524"/><circle r="14" fill="#1f7a6b"/>
-      <text y="4" text-anchor="middle" class="jlabel">OK</text>
+
+    <!-- shop floor / wall wash -->
+    <rect width="1440" height="780" fill="url(#concrete)"/>
+    <rect width="1440" height="780" fill="url(#concrete)" opacity=".5"/>
+    <!-- subtle wall shadow under manifold -->
+    <ellipse cx="720" cy="620" rx="580" ry="28" fill="#14171c" opacity=".06"/>
+
+    <!-- ===== BACK WALL PIPE SUPPORTS / hangers ===== -->
+    <g class="supports" opacity=".85">
+      <rect x="160" y="40" width="14" height="280" fill="#8a9098"/>
+      <rect x="520" y="40" width="14" height="280" fill="#8a9098"/>
+      <rect x="880" y="40" width="14" height="280" fill="#8a9098"/>
+      <rect x="1240" y="40" width="14" height="280" fill="#8a9098"/>
+      <!-- U-bolts -->
+      <path d="M157 300 h20 v28 h-20 z M157 300 a10 10 0 0 1 20 0" fill="none" stroke="#5a6068" stroke-width="3"/>
+      <path d="M517 300 h20 v28 h-20 z M517 300 a10 10 0 0 1 20 0" fill="none" stroke="#5a6068" stroke-width="3"/>
+      <path d="M877 300 h20 v28 h-20 z M877 300 a10 10 0 0 1 20 0" fill="none" stroke="#5a6068" stroke-width="3"/>
+      <path d="M1237 300 h20 v28 h-20 z M1237 300 a10 10 0 0 1 20 0" fill="none" stroke="#5a6068" stroke-width="3"/>
     </g>
-    <g class="joint leak" data-joint="1" transform="translate(534 246)">
-      <circle r="22" fill="#8a5524"/><circle r="14" fill="#e85d04"/>
-      <text y="4" text-anchor="middle" class="jlabel">!</text>
+
+    <!-- ===== VERTICAL RISERS (from top) ===== -->
+    <!-- riser 1 -->
+    <g class="riser">
+      <rect x="188" y="70" width="36" height="280" rx="18" fill="url(#cu-v)"/>
+      <rect x="194" y="70" width="8" height="280" fill="url(#cu-hi)" opacity=".55"/>
+      <rect x="188" y="70" width="36" height="14" rx="4" fill="#8a5524"/>
+      <!-- flare nut -->
+      <rect x="180" y="200" width="52" height="22" rx="3" fill="#8a5524"/>
+      <rect x="184" y="203" width="44" height="6" fill="#d4a574" opacity=".4"/>
     </g>
-    <g class="joint seal" data-joint="2" transform="translate(874 246)">
-      <circle r="22" fill="#8a5524"/><circle r="14" fill="#1f7a6b"/>
-      <text y="4" text-anchor="middle" class="jlabel">OK</text>
+    <!-- riser 2 (leak branch) -->
+    <g class="riser">
+      <rect x="548" y="70" width="36" height="280" rx="18" fill="url(#cu-v)"/>
+      <rect x="554" y="70" width="8" height="280" fill="url(#cu-hi)" opacity=".55"/>
+      <rect x="548" y="70" width="36" height="14" rx="4" fill="#8a5524"/>
+      <rect x="540" y="200" width="52" height="22" rx="3" fill="#8a5524"/>
+      <rect x="544" y="203" width="44" height="6" fill="#d4a574" opacity=".4"/>
     </g>
-    <!-- brass stamped tag on middle-left elbow -->
-    <g class="brass-tag" transform="translate(220 100)">
-      <rect width="320" height="72" rx="6" fill="#c49a5c" stroke="#8a5524" stroke-width="3"/>
-      <rect x="6" y="6" width="308" height="60" rx="3" fill="none" stroke="#8a5524" stroke-width="1.5" opacity=".5"/>
-      <text x="160" y="32" text-anchor="middle" class="tag-h1">FAILSHUT — LEAK CHECK</text>
-      <text x="160" y="54" text-anchor="middle" class="tag-sub">PRESSURIZE · WIPE SOAP · WATCH JOINTS</text>
+    <!-- riser 3 -->
+    <g class="riser">
+      <rect x="908" y="70" width="36" height="280" rx="18" fill="url(#cu-v)"/>
+      <rect x="914" y="70" width="8" height="280" fill="url(#cu-hi)" opacity=".55"/>
+      <rect x="908" y="70" width="36" height="14" rx="4" fill="#8a5524"/>
+      <rect x="900" y="200" width="52" height="22" rx="3" fill="#8a5524"/>
+      <rect x="904" y="203" width="44" height="6" fill="#d4a574" opacity=".4"/>
     </g>
-    <!-- soap film wipe (animated) -->
-    <rect class="soap-wipe" x="40" y="200" width="0" height="56" fill="url(#soap)" opacity=".25" filter="url(#soft)"/>
-    <!-- bubbles (nucleate on leak joint) -->
-    <g class="bubbles" transform="translate(534 246)">
-      <circle class="bubble b1" cx="0" cy="0" r="0" fill="url(#soap)" opacity="0"/>
-      <circle class="bubble b2" cx="18" cy="-28" r="0" fill="url(#soap)" opacity="0"/>
-      <circle class="bubble b3" cx="-14" cy="-48" r="0" fill="url(#soap)" opacity="0"/>
-      <circle class="bubble b4" cx="8" cy="-72" r="0" fill="url(#soap)" opacity="0"/>
+
+    <!-- elbow tops (short horizontal stubs) -->
+    <rect x="188" y="70" width="120" height="36" rx="18" fill="url(#cu-h)"/>
+    <rect x="194" y="76" width="108" height="8" fill="url(#cu-hi)" opacity=".5"/>
+    <rect x="548" y="70" width="100" height="36" rx="18" fill="url(#cu-h)"/>
+    <rect x="554" y="76" width="88" height="8" fill="url(#cu-hi)" opacity=".5"/>
+    <rect x="908" y="70" width="100" height="36" rx="18" fill="url(#cu-h)"/>
+    <rect x="914" y="76" width="88" height="8" fill="url(#cu-hi)" opacity=".5"/>
+
+    <!-- ===== MAIN HORIZONTAL HEADER ===== -->
+    <g class="header-run">
+      <rect x="60" y="330" width="1320" height="48" rx="24" fill="url(#cu-h)"/>
+      <rect x="70" y="336" width="1300" height="10" rx="5" fill="url(#cu-hi)" opacity=".55"/>
+      <rect x="70" y="358" width="1300" height="6" rx="3" fill="#6e3f18" opacity=".35"/>
+      <!-- end caps / unions -->
+      <rect x="48" y="322" width="28" height="64" rx="6" fill="#8a5524"/>
+      <rect x="1364" y="322" width="28" height="64" rx="6" fill="#8a5524"/>
+      <!-- coupling rings along run -->
+      <rect x="340" y="324" width="18" height="60" rx="3" fill="#8a5524"/>
+      <rect x="700" y="324" width="18" height="60" rx="3" fill="#8a5524"/>
+      <rect x="1060" y="324" width="18" height="60" rx="3" fill="#8a5524"/>
     </g>
-    <!-- pressure gauge -->
-    <g class="gauge" transform="translate(1040 120)">
-      <circle r="48" fill="#14171c" stroke="#b87333" stroke-width="4"/>
-      <circle r="40" fill="#d9dde3"/>
-      <line class="needle" x1="0" y1="0" x2="0" y2="-28" stroke="#e85d04" stroke-width="3" stroke-linecap="round"/>
-      <circle r="5" fill="#14171c"/>
-      <text y="58" text-anchor="middle" class="gauge-l">PSI</text>
+
+    <!-- tee junctions where risers meet header -->
+    <g class="tees">
+      <rect x="178" y="318" width="56" height="72" rx="8" fill="#8a5524"/>
+      <rect x="186" y="326" width="40" height="10" fill="#d4a574" opacity=".35"/>
+      <rect x="538" y="318" width="56" height="72" rx="8" fill="#8a5524"/>
+      <rect x="546" y="326" width="40" height="10" fill="#d4a574" opacity=".35"/>
+      <rect x="898" y="318" width="56" height="72" rx="8" fill="#8a5524"/>
+      <rect x="906" y="326" width="40" height="10" fill="#d4a574" opacity=".35"/>
+    </g>
+
+
+    <!-- hex compression nuts flanking joints -->
+    <g class="hex-nuts" fill="#8a5524" stroke="#6e3f18" stroke-width="1">
+      <polygon points="168,354 178,338 198,338 208,354 198,370 178,370"/>
+      <polygon points="244,354 254,338 274,338 284,354 274,370 254,370"/>
+      <polygon points="528,354 538,338 558,338 568,354 558,370 538,370"/>
+      <polygon points="604,354 614,338 634,338 644,354 634,370 614,370"/>
+      <polygon points="888,354 898,338 918,338 928,354 918,370 898,370"/>
+      <polygon points="964,354 974,338 994,338 1004,354 994,370 974,370"/>
+    </g>
+    <!-- service port valves (Schrader-style caps) -->
+    <g class="schraders">
+      <rect x="400" y="300" width="14" height="30" rx="2" fill="#8a5524"/>
+      <rect x="398" y="292" width="18" height="10" rx="2" fill="#6e3f18"/>
+      <rect x="760" y="300" width="14" height="30" rx="2" fill="#8a5524"/>
+      <rect x="758" y="292" width="18" height="10" rx="2" fill="#6e3f18"/>
+    </g>
+
+    <!-- ===== JOINTS on header ===== -->
+    <!-- Joint A: seal-ok (left) -->
+    <g class="joint seal" data-state="seal" transform="translate(206 354)">
+      <circle r="34" fill="#6e3f18"/>
+      <circle r="28" fill="#8a5524"/>
+      <circle r="18" fill="#1f7a6b"/>
+      <circle r="18" fill="none" stroke="#145c52" stroke-width="2"/>
+      <text class="j-badge" text-anchor="middle" y="5">SEAL</text>
+      <!-- dry — no bubbles -->
+    </g>
+
+    <!-- Joint B: FAIL OPEN / leak (center) — THE demo leak -->
+    <g class="joint leak" data-state="leak" transform="translate(566 354)">
+      <circle r="34" fill="#6e3f18"/>
+      <circle r="28" fill="#8a5524"/>
+      <circle r="18" fill="#e85d04"/>
+      <circle r="18" fill="none" stroke="#a33f00" stroke-width="2"/>
+      <text class="j-badge" text-anchor="middle" y="5">OPEN</text>
+    </g>
+
+    <!-- Joint C: seal-ok (right) -->
+    <g class="joint seal" data-state="seal" transform="translate(926 354)">
+      <circle r="34" fill="#6e3f18"/>
+      <circle r="28" fill="#8a5524"/>
+      <circle r="18" fill="#1f7a6b"/>
+      <circle r="18" fill="none" stroke="#145c52" stroke-width="2"/>
+      <text class="j-badge" text-anchor="middle" y="5">SEAL</text>
+    </g>
+
+    <!-- soap wipe film along header (animated width via JS) -->
+    <g clip-path="url(#pipe-run-clip)">
+      <rect class="soap-wipe" x="60" y="318" width="0" height="64" fill="url(#soap-brush)" filter="url(#soft-blur)"/>
+    </g>
+
+    <!-- bubbles nucleating on leak joint only -->
+    <g class="bubble-field" transform="translate(566 354)" aria-hidden="true">
+      <circle class="bubble" data-i="0" cx="4" cy="-8" r="0" fill="url(#soap-fill)" stroke="#3db8b0" stroke-width="2" opacity="0"/>
+      <circle class="bubble" data-i="1" cx="26" cy="-40" r="0" fill="url(#soap-fill)" stroke="#3db8b0" stroke-width="1.6" opacity="0"/>
+      <circle class="bubble" data-i="2" cx="-22" cy="-56" r="0" fill="url(#soap-fill)" stroke="#c45a8c" stroke-width="1.6" opacity="0"/>
+      <circle class="bubble" data-i="3" cx="14" cy="-88" r="0" fill="url(#soap-fill)" stroke="#3db8b0" stroke-width="1.4" opacity="0"/>
+      <circle class="bubble" data-i="4" cx="-10" cy="-118" r="0" fill="url(#soap-fill)" stroke="#c45a8c" stroke-width="1.4" opacity="0"/>
+      <circle class="bubble" data-i="5" cx="32" cy="-148" r="0" fill="url(#soap-fill)" stroke="#3db8b0" stroke-width="1.2" opacity="0"/>
+      <circle class="bubble" data-i="6" cx="-28" cy="-160" r="0" fill="url(#soap-fill)" stroke="#c45a8c" stroke-width="1.2" opacity="0"/>
+      <circle class="bubble" data-i="7" cx="8" cy="-190" r="0" fill="url(#soap-fill)" stroke="#3db8b0" stroke-width="1.2" opacity="0"/>
+    </g>
+
+    <!-- ===== BRASS NAMEPLATE on left elbow = h1 ===== -->
+    <g class="nameplate" transform="translate(250 95)">
+      <!-- mounting straps -->
+      <rect x="-8" y="18" width="16" height="48" rx="2" fill="#8a5524"/>
+      <rect x="328" y="18" width="16" height="48" rx="2" fill="#8a5524"/>
+      <!-- plate -->
+      <rect width="336" height="84" rx="5" fill="url(#brass-g)" stroke="#6e3f18" stroke-width="3"/>
+      <rect x="8" y="8" width="320" height="68" rx="2" fill="none" stroke="#8a6a32" stroke-width="1.5" opacity=".55"/>
+      <!-- rivets -->
+      <circle cx="18" cy="18" r="4" fill="#8a5524"/><circle cx="18" cy="18" r="1.5" fill="#c49a5c"/>
+      <circle cx="318" cy="18" r="4" fill="#8a5524"/><circle cx="318" cy="18" r="1.5" fill="#c49a5c"/>
+      <circle cx="18" cy="66" r="4" fill="#8a5524"/><circle cx="18" cy="66" r="1.5" fill="#c49a5c"/>
+      <circle cx="318" cy="66" r="4" fill="#8a5524"/><circle cx="318" cy="66" r="1.5" fill="#c49a5c"/>
+      <!-- stamped text = accessible h1 mirrored in HTML too -->
+      <text x="168" y="40" text-anchor="middle" class="plate-h1">FAILSHUT — LEAK CHECK</text>
+      <text x="168" y="64" text-anchor="middle" class="plate-sub">PRESSURIZE · WIPE SOAP · WATCH JOINTS</text>
+    </g>
+
+    <!-- ===== PRESSURE GAUGE ===== -->
+    <g class="gauge" transform="translate(1220 160)">
+      <circle r="64" fill="#14171c"/>
+      <circle r="58" fill="#2a2e34" stroke="#b87333" stroke-width="5"/>
+      <circle r="50" fill="#d9dde3"/>
+      <!-- tick marks -->
+      <g stroke="#14171c" stroke-width="2">
+        <line x1="0" y1="-42" x2="0" y2="-34" transform="rotate(-90)"/>
+        <line x1="0" y1="-42" x2="0" y2="-34" transform="rotate(-45)"/>
+        <line x1="0" y1="-42" x2="0" y2="-34" transform="rotate(0)"/>
+        <line x1="0" y1="-42" x2="0" y2="-34" transform="rotate(45)"/>
+        <line x1="0" y1="-42" x2="0" y2="-34" transform="rotate(90)"/>
+      </g>
+      <line class="needle" x1="0" y1="0" x2="0" y2="-36" stroke="#e85d04" stroke-width="3.5" stroke-linecap="round"/>
+      <circle r="6" fill="#14171c"/>
+      <circle r="2.5" fill="#e85d04"/>
+      <text class="gauge-lbl" y="72" text-anchor="middle">PSI</text>
+      <text class="gauge-state" y="90" text-anchor="middle">0</text>
+      <!-- stem to pipe -->
+      <rect x="-8" y="64" width="16" height="110" fill="url(#cu-v)"/>
+      <rect x="-4" y="64" width="4" height="110" fill="url(#cu-hi)" opacity=".4"/>
+    </g>
+
+    <!-- soap bottle on shelf (props) -->
+    <g class="soap-bottle" transform="translate(80 480)">
+      <rect x="0" y="40" width="48" height="70" rx="6" fill="#3db8b0" opacity=".85"/>
+      <rect x="8" y="20" width="32" height="24" rx="3" fill="#2a8a84"/>
+      <rect x="16" y="8" width="16" height="16" rx="2" fill="#1f7a6b"/>
+      <text x="24" y="82" text-anchor="middle" class="prop-lbl">SOAP</text>
+    </g>
+
+    <!-- status legend plaque -->
+    <g class="legend-plate" transform="translate(1040 500)">
+      <rect width="320" height="130" rx="4" fill="#c49a5c" stroke="#8a5524" stroke-width="2"/>
+      <rect x="6" y="6" width="308" height="118" rx="2" fill="none" stroke="#8a6a32" stroke-width="1" opacity=".5"/>
+      <circle cx="28" cy="36" r="10" fill="#e85d04"/>
+      <text x="48" y="41" class="leg-txt">Bubbles = FAIL OPEN</text>
+      <circle cx="28" cy="68" r="10" fill="#1f7a6b"/>
+      <text x="48" y="73" class="leg-txt">Dry joint = FAIL SHUT</text>
+      <text class="stage-readout" x="160" y="110" text-anchor="middle">…</text>
     </g>
   </svg>
-  <div class="hero-copy">
-    <p class="lede">Config says <strong>DENY</strong>. Runtime says <strong>ALLOW</strong>? Pressurize the manifold.</p>
-    <p class="sub">One command tells you whether Claude Code / Codex / OpenCode permission hooks and deny/ask rules actually <em>fail shut</em> — or silently <em>fail open</em>.</p>
-    <pre class="install"><code>curl -sL https://github.com/Blackman99/failshut/releases/download/v0.1.0/failshut_0.1.0_linux_amd64.tar.gz | tar xz
+
+  <!-- Visually the plate is the h1; keep a real h1 for a11y/SEO that mirrors the plate -->
+  <h1 class="visually-hidden">FAILSHUT — LEAK CHECK</h1>
+
+  <div class="hero-rail">
+    <p class="lede">Config says <strong>DENY</strong>. Runtime says <strong>ALLOW</strong>?</p>
+    <p class="sub">One command pressurizes the permission manifold for Claude Code, Codex, and OpenCode — and reports every joint that bubbles.</p>
+    <button type="button" class="replay" id="replay" hidden>Replay leak test</button>
+  </div>
+</section>
+
+<!-- ========== PIPE RUN: sections hang from clamps ========== -->
+<div class="pipe-spine" aria-hidden="true">
+  <div class="spine-bar"></div>
+</div>
+
+<!-- Install hang-tag -->
+<section class="bay" id="install">
+  <div class="clamp-row"><span class="u-bolt" aria-hidden="true"></span><span class="bay-tag">BAY 01 · SERVICE TAG</span></div>
+  <div class="hang-tag">
+    <div class="tag-eye" aria-hidden="true"></div>
+    <h2>Hang this on your toolbox</h2>
+    <pre class="cmd" id="inst-bin"><code>curl -sL https://github.com/Blackman99/failshut/releases/download/v0.1.0/failshut_0.1.0_linux_amd64.tar.gz | tar xz
 ./failshut audit</code></pre>
+    <button type="button" class="copy" data-copy="inst-bin" aria-label="Copy install command">Copy</button>
     <p class="or">or <code>go install github.com/Blackman99/failshut/cmd/failshut@latest</code></p>
+    <p class="hint">Exit <strong>1</strong> on any FAIL OPEN · <strong>0</strong> if sealed or nothing configured.</p>
   </div>
 </section>
 
-<section class="hang" id="findings">
-  <div class="hanger"><span class="clamp"></span><h2>What bubbles mean</h2></div>
-  <div class="cards">
-    <article class="card leak-card">
-      <h3><span class="dot fail"></span> FAIL OPEN</h3>
-      <p>A deny/ask/hook is configured in a shape the harness is known to ignore — or Ask is paired with an auto-approve override. Exit code <code>1</code>.</p>
-    </article>
-    <article class="card seal-card">
-      <h3><span class="dot ok"></span> FAIL SHUT</h3>
-      <p>Scanned configs look sealed for the static rules we ship. Exit code <code>0</code>. (Nothing configured also exits 0 — with a clear message.)</p>
-    </article>
+<!-- Six leak points as real joints on a secondary manifold -->
+<section class="bay" id="joints">
+  <div class="clamp-row"><span class="u-bolt" aria-hidden="true"></span><span class="bay-tag">BAY 02 · SIX LEAK POINTS</span></div>
+  <h2 class="bay-h">Each finding is a joint on the manifold</h2>
+  <p class="bay-lede">Tap a fitting. Bubbles mark shapes the harness is known to ignore — dry means the static check is sealed.</p>
+
+  <div class="joint-manifold" role="list">
+    <button type="button" class="fitting leak" role="listitem" data-rule="deny-ignored" aria-expanded="false">
+      <span class="nut" aria-hidden="true"></span>
+      <span class="bubbles-mini" aria-hidden="true"></span>
+      <span class="fit-id">deny-ignored</span>
+      <span class="fit-state">FAIL OPEN</span>
+      <span class="fit-body">Deny on read/grep-like tools the harness may skip (opencode#55728).</span>
+    </button>
+    <button type="button" class="fitting leak" role="listitem" data-rule="ask-vs-effective" aria-expanded="false">
+      <span class="nut" aria-hidden="true"></span>
+      <span class="bubbles-mini" aria-hidden="true"></span>
+      <span class="fit-id">ask-vs-effective</span>
+      <span class="fit-state">FAIL OPEN</span>
+      <span class="fit-body">UI Ask vs <code>sandbox_approval=false</code> / silent escalate (codex#54298, #54440).</span>
+    </button>
+    <button type="button" class="fitting leak" role="listitem" data-rule="hook-missing" aria-expanded="false">
+      <span class="nut" aria-hidden="true"></span>
+      <span class="bubbles-mini" aria-hidden="true"></span>
+      <span class="fit-id">hook-missing</span>
+      <span class="fit-state">FAIL OPEN</span>
+      <span class="fit-body">Referenced hook path missing or not executable.</span>
+    </button>
+    <button type="button" class="fitting leak" role="listitem" data-rule="path-traversal-config" aria-expanded="false">
+      <span class="nut" aria-hidden="true"></span>
+      <span class="bubbles-mini" aria-hidden="true"></span>
+      <span class="fit-id">path-traversal-config</span>
+      <span class="fit-state">FAIL OPEN</span>
+      <span class="fit-body"><code>..</code> in a project path can load a sibling config (opencode#55909).</span>
+    </button>
+    <button type="button" class="fitting leak" role="listitem" data-rule="delegation-escalate" aria-expanded="false">
+      <span class="nut" aria-hidden="true"></span>
+      <span class="bubbles-mini" aria-hidden="true"></span>
+      <span class="fit-id">delegation-escalate</span>
+      <span class="fit-state">FAIL OPEN</span>
+      <span class="fit-body">Plan/restrictive profile spawns a general subagent (opencode#55814, codex#54448).</span>
+    </button>
+    <button type="button" class="fitting leak" role="listitem" data-rule="ask-auto-allow" aria-expanded="false">
+      <span class="nut" aria-hidden="true"></span>
+      <span class="bubbles-mini" aria-hidden="true"></span>
+      <span class="fit-id">ask-auto-allow</span>
+      <span class="fit-state">FAIL OPEN</span>
+      <span class="fit-body">Hook asks; desktop auto-allows (claude-code#102582).</span>
+    </button>
   </div>
+  <p class="fineprint">v0.1 is a <strong>static</strong> auditor — it does not intercept live tool calls. See <a href="docs/">docs</a>.</p>
 </section>
 
-<section class="hang" id="rules">
-  <div class="hanger"><span class="clamp"></span><h2>Six static leak points</h2></div>
-  <ul class="rules">
-    <li><code>deny-ignored</code> — deny on read/grep-like tools the harness may skip</li>
-    <li><code>ask-vs-effective</code> — UI Ask vs <code>sandbox_approval=false</code> / silent escalate</li>
-    <li><code>hook-missing</code> — referenced hook path missing or not executable</li>
-    <li><code>path-traversal-config</code> — <code>..</code> in project path can load a sibling config</li>
-    <li><code>delegation-escalate</code> — plan/restrictive profile spawns a general subagent</li>
-    <li><code>ask-auto-allow</code> — hook asks, desktop auto-allows</li>
-  </ul>
-  <p class="note">v0.1 is a <strong>static</strong> auditor. It does not intercept live tool calls. See <a href="docs/">docs</a>.</p>
-</section>
-
-<section class="hang" id="sample">
-  <div class="hanger"><span class="clamp"></span><h2>Sample report</h2></div>
-  <pre class="term"><code><span class="fail">FAIL OPEN</span> — 1 finding(s) where policy may not hold:
+<!-- Sample report as work order clipboard -->
+<section class="bay" id="report">
+  <div class="clamp-row"><span class="u-bolt" aria-hidden="true"></span><span class="bay-tag">BAY 03 · WORK ORDER</span></div>
+  <div class="clipboard">
+    <div class="clip-metal" aria-hidden="true"></div>
+    <header class="wo-head">
+      <span>JOB #FS-001</span>
+      <span>TECH · failshut audit</span>
+      <span class="wo-stamp">FAIL OPEN</span>
+    </header>
+    <pre class="term"><code><span class="fail">FAIL OPEN</span> — 1 finding(s) where policy may not hold:
 
 <span class="b">[1] ask-vs-effective</span>  (codex)
     file:     ~/.codex/config.toml
@@ -137,26 +405,31 @@
     fix:      Set sandbox_approval=true so Ask cannot be skipped
 
 Summary: <span class="fail">1 FAIL OPEN</span> · <span class="ok">5 FAIL SHUT checks</span> · 1 config(s)</code></pre>
-  <img class="demo" src="demo.gif" width="720" height="240" alt="Terminal recording of failshut audit finding FAIL OPEN"/>
+    <img class="demo" src="demo.gif" width="720" height="240" alt="Terminal recording of failshut audit finding FAIL OPEN"/>
+  </div>
 </section>
 
-<section class="hang" id="pain">
-  <div class="hanger"><span class="clamp"></span><h2>Why this exists</h2></div>
-  <p>Fresh reports keep landing where policy says one thing and runtime does another:</p>
-  <ul class="sources">
-    <li><a href="https://github.com/anomalyco/opencode/issues/55728">opencode#55728</a> deny ignored</li>
-    <li><a href="https://github.com/anomalyco/opencode/issues/55909">opencode#55909</a> <code>..</code> loads sibling config</li>
-    <li><a href="https://github.com/anomalyco/opencode/issues/55814">opencode#55814</a> plan-mode escalate via subagent</li>
-    <li><a href="https://github.com/openai/codex/issues/54298">codex#54298</a> Ask vs sandbox_approval</li>
-    <li><a href="https://github.com/openai/codex/issues/54440">codex#54440</a> require_escalated silent sandbox</li>
-    <li><a href="https://github.com/openai/codex/issues/54448">codex#54448</a> delegation drops named profile</li>
-    <li><a href="https://github.com/anthropics/claude-code/issues/102582">claude-code#102582</a> hook asked, desktop auto-allowed</li>
+<!-- Pain sources as job tickets on a rack -->
+<section class="bay" id="tickets">
+  <div class="clamp-row"><span class="u-bolt" aria-hidden="true"></span><span class="bay-tag">BAY 04 · OPEN TICKETS</span></div>
+  <h2 class="bay-h">Why the soap test exists</h2>
+  <p class="bay-lede">Fresh reports keep landing where policy says one thing and runtime does another:</p>
+  <ul class="ticket-rack">
+    <li class="ticket"><a href="https://github.com/anomalyco/opencode/issues/55728"><span class="t-id">opencode#55728</span><span class="t-sum">deny ignored</span></a></li>
+    <li class="ticket"><a href="https://github.com/anomalyco/opencode/issues/55909"><span class="t-id">opencode#55909</span><span class="t-sum"><code>..</code> loads sibling config</span></a></li>
+    <li class="ticket"><a href="https://github.com/anomalyco/opencode/issues/55814"><span class="t-id">opencode#55814</span><span class="t-sum">plan-mode escalate via subagent</span></a></li>
+    <li class="ticket"><a href="https://github.com/openai/codex/issues/54298"><span class="t-id">codex#54298</span><span class="t-sum">Ask vs sandbox_approval</span></a></li>
+    <li class="ticket"><a href="https://github.com/openai/codex/issues/54440"><span class="t-id">codex#54440</span><span class="t-sum">require_escalated silent sandbox</span></a></li>
+    <li class="ticket"><a href="https://github.com/openai/codex/issues/54448"><span class="t-id">codex#54448</span><span class="t-sum">delegation drops named profile</span></a></li>
+    <li class="ticket"><a href="https://github.com/anthropics/claude-code/issues/102582"><span class="t-id">claude-code#102582</span><span class="t-sum">hook asked, desktop auto-allowed</span></a></li>
   </ul>
 </section>
 
-<footer>
+</main>
+
+<footer class="shop-foot">
   <p>MIT · <a href="https://github.com/Blackman99/failshut">Blackman99/failshut</a> · <a href="docs/">Docs</a></p>
-  <p class="dim">Soap-bubble leak test on a copper manifold — bubbles mean fail-open.</p>
+  <p class="dim">Soap-bubble leak test on a copper refrigerant manifold — bubbles mean fail-open.</p>
 </footer>
 <script src="app.js"></script>
 </body>
