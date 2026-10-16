@@ -1,0 +1,9 @@
+{
+  "name": "failshut",
+  "description": "Static leak-check for AI coding-agent permission hooks — FAIL OPEN vs FAIL SHUT",
+  "repository": "https://github.com/Blackman99/failshut",
+  "transport": "stdio",
+  "command": ["failshut", "mcp"],
+  "tools": ["audit_report", "list_findings"],
+  "readOnly": true
+}

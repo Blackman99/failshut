@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>failshut — leak-check for AI agent permission hooks</title>
+<meta name="description" content="Tell you, in one command, whether your AI coding-agent permission hooks and deny/ask rules actually fail shut — or silently fail open."/>
+<meta property="og:title" content="failshut — FAIL OPEN or FAIL SHUT?"/>
+<meta property="og:description" content="Static leak-check for Claude Code / Codex / OpenCode permission configs. One command. Exit 1 if anything fails open."/>
+<meta property="og:image" content="https://blackman99.github.io/failshut/og.png"/>
+<meta property="og:image:width" content="1200"/>
+<meta property="og:image:height" content="630"/>
+<meta property="og:url" content="https://blackman99.github.io/failshut/"/>
+<meta property="og:type" content="website"/>
+<meta name="twitter:card" content="summary_large_image"/>
+<meta name="twitter:title" content="failshut — leak-check for AI agent permissions"/>
+<meta name="twitter:description" content="Config says DENY. Runtime says ALLOW? Find out in one command."/>
+<meta name="twitter:image" content="https://blackman99.github.io/failshut/og.png"/>
+<link rel="icon" href="favicon.svg" type="image/svg+xml"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;800&family=Source+Code+Pro:wght@400;600&family=Work+Sans:wght@400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="./"><img src="logo.svg" width="36" height="36" alt=""/>failshut</a>
+  <nav>
+    <a href="docs/">Docs</a>
+    <a href="https://github.com/Blackman99/failshut">GitHub</a>
+  </nav>
+</header>
+
+<section class="hero" id="manifold" aria-label="Copper manifold leak check demo">
+  <svg class="pipes" viewBox="0 0 1200 520" preserveAspectRatio="xMidYMid slice" role="img" aria-label="Pressurized copper manifold">
+    <defs>
+      <linearGradient id="cu" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0%" stop-color="#d4a574"/>
+        <stop offset="45%" stop-color="#b87333"/>
+        <stop offset="100%" stop-color="#8a5524"/>
+      </linearGradient>
+      <linearGradient id="soap" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0%" stop-color="#3db8b0"/>
+        <stop offset="50%" stop-color="#c45a8c"/>
+        <stop offset="100%" stop-color="#3db8b0"/>
+      </linearGradient>
+      <filter id="soft"><feGaussianBlur stdDeviation="1.2"/></filter>
+    </defs>
+    <!-- horizontal run -->
+    <rect class="pipe" x="40" y="210" width="1120" height="36" rx="18" fill="url(#cu)"/>
+    <rect x="40" y="214" width="1120" height="8" rx="4" fill="#e8c49a" opacity=".35"/>
+    <!-- vertical risers / elbows -->
+    <rect class="pipe" x="180" y="80" width="28" height="160" rx="14" fill="url(#cu)"/>
+    <rect class="pipe" x="520" y="80" width="28" height="160" rx="14" fill="url(#cu)"/>
+    <rect class="pipe" x="860" y="80" width="28" height="160" rx="14" fill="url(#cu)"/>
+    <!-- elbow tags / joints -->
+    <g class="joint seal" data-joint="0" transform="translate(194 246)">
+      <circle r="22" fill="#8a5524"/><circle r="14" fill="#1f7a6b"/>
+      <text y="4" text-anchor="middle" class="jlabel">OK</text>
+    </g>
+    <g class="joint leak" data-joint="1" transform="translate(534 246)">
+      <circle r="22" fill="#8a5524"/><circle r="14" fill="#e85d04"/>
+      <text y="4" text-anchor="middle" class="jlabel">!</text>
+    </g>
+    <g class="joint seal" data-joint="2" transform="translate(874 246)">
+      <circle r="22" fill="#8a5524"/><circle r="14" fill="#1f7a6b"/>
+      <text y="4" text-anchor="middle" class="jlabel">OK</text>
+    </g>
+    <!-- brass stamped tag on middle-left elbow -->
+    <g class="brass-tag" transform="translate(220 100)">
+      <rect width="320" height="72" rx="6" fill="#c49a5c" stroke="#8a5524" stroke-width="3"/>
+      <rect x="6" y="6" width="308" height="60" rx="3" fill="none" stroke="#8a5524" stroke-width="1.5" opacity=".5"/>
+      <text x="160" y="32" text-anchor="middle" class="tag-h1">FAILSHUT — LEAK CHECK</text>
+      <text x="160" y="54" text-anchor="middle" class="tag-sub">PRESSURIZE · WIPE SOAP · WATCH JOINTS</text>
+    </g>
+    <!-- soap film wipe (animated) -->
+    <rect class="soap-wipe" x="40" y="200" width="0" height="56" fill="url(#soap)" opacity=".25" filter="url(#soft)"/>
+    <!-- bubbles (nucleate on leak joint) -->
+    <g class="bubbles" transform="translate(534 246)">
+      <circle class="bubble b1" cx="0" cy="0" r="0" fill="url(#soap)" opacity="0"/>
+      <circle class="bubble b2" cx="18" cy="-28" r="0" fill="url(#soap)" opacity="0"/>
+      <circle class="bubble b3" cx="-14" cy="-48" r="0" fill="url(#soap)" opacity="0"/>
+      <circle class="bubble b4" cx="8" cy="-72" r="0" fill="url(#soap)" opacity="0"/>
+    </g>
+    <!-- pressure gauge -->
+    <g class="gauge" transform="translate(1040 120)">
+      <circle r="48" fill="#14171c" stroke="#b87333" stroke-width="4"/>
+      <circle r="40" fill="#d9dde3"/>
+      <line class="needle" x1="0" y1="0" x2="0" y2="-28" stroke="#e85d04" stroke-width="3" stroke-linecap="round"/>
+      <circle r="5" fill="#14171c"/>
+      <text y="58" text-anchor="middle" class="gauge-l">PSI</text>
+    </g>
+  </svg>
+  <div class="hero-copy">
+    <p class="lede">Config says <strong>DENY</strong>. Runtime says <strong>ALLOW</strong>? Pressurize the manifold.</p>
+    <p class="sub">One command tells you whether Claude Code / Codex / OpenCode permission hooks and deny/ask rules actually <em>fail shut</em> — or silently <em>fail open</em>.</p>
+    <pre class="install"><code>curl -sL https://github.com/Blackman99/failshut/releases/latest/download/failshut_Linux_x86_64.tar.gz | tar xz
+./failshut audit</code></pre>
+    <p class="or">or <code>go install github.com/Blackman99/failshut/cmd/failshut@latest</code></p>
+  </div>
+</section>
+
+<section class="hang" id="findings">
+  <div class="hanger"><span class="clamp"></span><h2>What bubbles mean</h2></div>
+  <div class="cards">
+    <article class="card leak-card">
+      <h3><span class="dot fail"></span> FAIL OPEN</h3>
+      <p>A deny/ask/hook is configured in a shape the harness is known to ignore — or Ask is paired with an auto-approve override. Exit code <code>1</code>.</p>
+    </article>
+    <article class="card seal-card">
+      <h3><span class="dot ok"></span> FAIL SHUT</h3>
+      <p>Scanned configs look sealed for the static rules we ship. Exit code <code>0</code>. (Nothing configured also exits 0 — with a clear message.)</p>
+    </article>
+  </div>
+</section>
+
+<section class="hang" id="rules">
+  <div class="hanger"><span class="clamp"></span><h2>Six static leak points</h2></div>
+  <ul class="rules">
+    <li><code>deny-ignored</code> — deny on read/grep-like tools the harness may skip</li>
+    <li><code>ask-vs-effective</code> — UI Ask vs <code>sandbox_approval=false</code> / silent escalate</li>
+    <li><code>hook-missing</code> — referenced hook path missing or not executable</li>
+    <li><code>path-traversal-config</code> — <code>..</code> in project path can load a sibling config</li>
+    <li><code>delegation-escalate</code> — plan/restrictive profile spawns a general subagent</li>
+    <li><code>ask-auto-allow</code> — hook asks, desktop auto-allows</li>
+  </ul>
+  <p class="note">v0.1 is a <strong>static</strong> auditor. It does not intercept live tool calls. See <a href="docs/">docs</a>.</p>
+</section>
+
+<section class="hang" id="sample">
+  <div class="hanger"><span class="clamp"></span><h2>Sample report</h2></div>
+  <pre class="term"><code><span class="fail">FAIL OPEN</span> — 1 finding(s) where policy may not hold:
+
+<span class="b">[1] ask-vs-effective</span>  (codex)
+    file:     ~/.codex/config.toml
+    evidence: approval_policy="ask" but sandbox_approval=false
+    fix:      Set sandbox_approval=true so Ask cannot be skipped
+
+Summary: <span class="fail">1 FAIL OPEN</span> · <span class="ok">5 FAIL SHUT checks</span> · 1 config(s)</code></pre>
+  <img class="demo" src="demo.gif" width="720" height="240" alt="Terminal recording of failshut audit finding FAIL OPEN"/>
+</section>
+
+<section class="hang" id="pain">
+  <div class="hanger"><span class="clamp"></span><h2>Why this exists</h2></div>
+  <p>Fresh reports keep landing where policy says one thing and runtime does another:</p>
+  <ul class="sources">
+    <li><a href="https://github.com/anomalyco/opencode/issues/55728">opencode#55728</a> deny ignored</li>
+    <li><a href="https://github.com/anomalyco/opencode/issues/55909">opencode#55909</a> <code>..</code> loads sibling config</li>
+    <li><a href="https://github.com/anomalyco/opencode/issues/55814">opencode#55814</a> plan-mode escalate via subagent</li>
+    <li><a href="https://github.com/openai/codex/issues/54298">codex#54298</a> Ask vs sandbox_approval</li>
+    <li><a href="https://github.com/openai/codex/issues/54440">codex#54440</a> require_escalated silent sandbox</li>
+    <li><a href="https://github.com/openai/codex/issues/54448">codex#54448</a> delegation drops named profile</li>
+    <li><a href="https://github.com/anthropics/claude-code/issues/102582">claude-code#102582</a> hook asked, desktop auto-allowed</li>
+  </ul>
+</section>
+
+<footer>
+  <p>MIT · <a href="https://github.com/Blackman99/failshut">Blackman99/failshut</a> · <a href="docs/">Docs</a></p>
+  <p class="dim">Soap-bubble leak test on a copper manifold — bubbles mean fail-open.</p>
+</footer>
+<script src="app.js"></script>
+</body>
+</html>

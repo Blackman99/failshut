@@ -1,0 +1,14 @@
+{
+  "permissionMode": "ask",
+  "desktopAutoAllow": true,
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit",
+        "hooks": [
+          { "type": "command", "command": "echo ask" }
+        ]
+      }
+    ]
+  }
+}

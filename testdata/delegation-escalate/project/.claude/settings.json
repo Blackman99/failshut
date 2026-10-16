@@ -1,0 +1,6 @@
+{
+  "permissionMode": "plan",
+  "agents": {
+    "worker": { "mode": "general" }
+  }
+}

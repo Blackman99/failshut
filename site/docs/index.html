@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8"/><meta name="viewport" content="width=device-width, initial-scale=1"/>
+<title>failshut docs</title>
+<meta name="description" content="Install, usage, configuration, rule reference, and FAQ for failshut."/>
+<meta property="og:title" content="failshut docs"/><meta property="og:image" content="https://blackman99.github.io/failshut/og.png"/>
+<meta name="twitter:card" content="summary_large_image"/><meta name="twitter:image" content="https://blackman99.github.io/failshut/og.png"/>
+<link rel="icon" href="../favicon.svg" type="image/svg+xml"/>
+<link href="https://fonts.googleapis.com/css2?family=Sora:wght@600;800&family=Source+Code+Pro:wght@400;600&family=Work+Sans:wght@400;600&display=swap" rel="stylesheet"/>
+<link rel="stylesheet" href="../style.css"/>
+<style>
+  .doc { max-width: 720px; margin: 0 auto; padding: 2rem 1.5rem 4rem; }
+  .doc h1 { font-family: Sora, sans-serif; font-weight: 800; }
+  .doc h2 { font-family: Sora, sans-serif; font-weight: 800; margin-top: 2rem; border-top: 3px solid #b87333; padding-top: .75rem; }
+  .doc pre { background: #14171c; color: #d9dde3; padding: 1rem; border-radius: 6px; overflow-x: auto; border-left: 4px solid #b87333; }
+  .doc code { font-family: "Source Code Pro", monospace; font-size: .9em; }
+  .toc a { display: inline-block; margin-right: 1rem; }
+</style>
+</head>
+<body>
+<header class="top">
+  <a class="brand" href="../"><img src="../logo.svg" width="36" height="36" alt=""/>failshut</a>
+  <nav><a href="../">Home</a><a href="https://github.com/Blackman99/failshut">GitHub</a></nav>
+</header>
+<main class="doc">
+  <h1>Docs</h1>
+  <p class="toc">
+    <a href="#install">Install</a>
+    <a href="#usage">Usage</a>
+    <a href="#configuration">Configuration</a>
+    <a href="#reference">Rule IDs</a>
+    <a href="#faq">FAQ</a>
+  </p>
+
+  <h2 id="install">Install</h2>
+  <p>Download a release binary (linux / darwin / windows, amd64 + arm64):</p>
+  <pre><code>curl -sL https://github.com/Blackman99/failshut/releases/latest/download/failshut_Linux_x86_64.tar.gz | tar xz
+./failshut version</code></pre>
+  <p>Or with Go 1.24+:</p>
+  <pre><code>go install github.com/Blackman99/failshut/cmd/failshut@latest</code></pre>
+
+  <h2 id="usage">Usage</h2>
+  <pre><code>failshut                 # audit (default)
+failshut audit           # same
+failshut audit --json
+failshut audit --project /path/to/repo
+failshut audit --rule ask-vs-effective
+failshut mcp             # read-only MCP stdio
+failshut version</code></pre>
+  <p>Exit <code>1</code> if any <strong>FAIL OPEN</strong> finding; <code>0</code> if all fail shut or nothing is configured.</p>
+  <p>Colors when stdout is a TTY. Disable with <code>--no-color</code> or <code>NO_COLOR=1</code>.</p>
+
+  <h2 id="configuration">What gets scanned</h2>
+  <ul>
+    <li><strong>Claude Code:</strong> <code>~/.claude/settings.json</code>, <code>settings.local.json</code>, project <code>.claude/settings.json</code> — hooks, permissionMode, allow/deny/ask</li>
+    <li><strong>Codex:</strong> <code>~/.codex/config.toml</code> (+ sibling <code>*.toml</code>) — approval_policy, sandbox_mode, sandbox_approval, profiles, delegation</li>
+    <li><strong>OpenCode:</strong> <code>opencode.json</code> / <code>.opencode/</code> under <code>--project</code> and user config dirs — permission deny/ask, path fields</li>
+    <li><strong>Cursor:</strong> best-effort readable CLI permission files when present</li>
+  </ul>
+  <p>Missing files are skipped. failshut never writes to your configs.</p>
+
+  <h2 id="reference">Rule IDs</h2>
+  <ul>
+    <li><code>deny-ignored</code> — deny on read/grep/glob-like tools known to be ignored by harness quirks (opencode#55728 shape)</li>
+    <li><code>ask-vs-effective</code> — Ask / approval_policy vs sandbox_approval=false or require_escalated + disabled sandbox (codex#54298 / #54440)</li>
+    <li><code>hook-missing</code> — hook/plugin path referenced but missing or not executable</li>
+    <li><code>path-traversal-config</code> — <code>..</code> segment in project/session path that can load a sibling opencode.json (opencode#55909)</li>
+    <li><code>delegation-escalate</code> — plan/read-only or restrictive profile can spawn a general/write subagent without the same profile (opencode#55814, codex#54448)</li>
+    <li><code>ask-auto-allow</code> — hooks / permissionMode ask paired with desktop auto-allow (claude-code#102582)</li>
+  </ul>
+
+  <h2 id="faq">FAQ</h2>
+  <p><strong>Does this block tools at runtime?</strong> No. v0.1 is a static auditor. Live canaries are on the roadmap (<code>--canary</code> returns “not in v0.1”).</p>
+  <p><strong>Nothing configured — is that fail-open?</strong> No. Clear message, exit 0. You still need policies for policies to hold.</p>
+  <p><strong>MCP?</strong> <code>failshut mcp</code> exposes read-only tools <code>audit_report</code> and <code>list_findings</code>. It never mutates configs.</p>
+  <p><strong>False positives?</strong> Rules mirror public issue shapes. Open an issue with a redacted fixture if a sealed config flags.</p>
+</main>
+<footer><p><a href="../">← Home</a> · MIT · Blackman99/failshut</p></footer>
+</body>
+</html>

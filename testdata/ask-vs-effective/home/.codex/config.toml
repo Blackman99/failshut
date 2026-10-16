@@ -1,0 +1,3 @@
+approval_policy = "ask"
+sandbox_mode = "workspace-write"
+sandbox_approval = false

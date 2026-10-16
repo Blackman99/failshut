@@ -1,0 +1,4 @@
+{
+  "root": "../sibling-app",
+  "permission": { "edit": "ask" }
+}

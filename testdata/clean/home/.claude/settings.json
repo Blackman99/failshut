@@ -1,0 +1,6 @@
+{
+  "permissionMode": "ask",
+  "hooks": {
+    "PreToolUse": []
+  }
+}

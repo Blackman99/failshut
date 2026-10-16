@@ -1,0 +1,7 @@
+{
+  "permission": {
+    "read": "deny",
+    "grep": "deny",
+    "edit": "ask"
+  }
+}

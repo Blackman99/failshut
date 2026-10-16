@@ -1,0 +1,5 @@
+/failshut
+/failshut.exe
+/dist/
+*.bak
+.DS_Store

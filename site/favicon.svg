@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <!-- copper elbow -->
+  <path d="M28 88h40c18 0 28-10 28-28V28" stroke="#b87333" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M28 88h40c18 0 28-10 28-28V28" stroke="#8a5524" stroke-width="6" stroke-linecap="round" opacity=".45"/>
+  <!-- joint ring -->
+  <circle cx="68" cy="60" r="11" fill="#8a5524"/>
+  <circle cx="68" cy="60" r="7" fill="#b87333"/>
+  <!-- iridescent soap bubble on joint -->
+  <defs>
+    <radialGradient id="b" cx="40%" cy="35%" r="60%">
+      <stop offset="0%" stop-color="#3db8b0" stop-opacity=".95"/>
+      <stop offset="55%" stop-color="#c45a8c" stop-opacity=".7"/>
+      <stop offset="100%" stop-color="#3db8b0" stop-opacity=".35"/>
+    </radialGradient>
+  </defs>
+  <circle cx="86" cy="48" r="22" fill="url(#b)" stroke="#3db8b0" stroke-width="1.5" opacity=".92"/>
+  <ellipse cx="78" cy="40" rx="7" ry="4" fill="#fff" opacity=".55"/>
+</svg>

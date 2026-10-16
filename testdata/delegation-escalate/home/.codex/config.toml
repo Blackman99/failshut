@@ -1,0 +1,8 @@
+default_profile = "strict"
+
+[profiles.strict]
+approval_policy = "ask"
+sandbox_mode = "read-only"
+
+[delegation]
+enabled = true
