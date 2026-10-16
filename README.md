@@ -14,7 +14,7 @@ Pain this maps to: [opencode#55728](https://github.com/anomalyco/opencode/issues
 
 ```bash
 # Linux amd64 example — see Releases for darwin/windows + arm64
-curl -sL https://github.com/Blackman99/failshut/releases/latest/download/failshut_Linux_x86_64.tar.gz | tar xz
+curl -sL https://github.com/Blackman99/failshut/releases/download/v0.1.0/failshut_0.1.0_linux_amd64.tar.gz | tar xz
 ./failshut audit
 ```
 
