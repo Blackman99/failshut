@@ -11,10 +11,10 @@ import (
 	"github.com/Blackman99/failshut/report"
 )
 
-// Run starts the JSON-RPC MCP loop on stdin/stdout.
 // Version is reported as serverInfo.version; cmd/failshut sets it from the build.
 var Version = "dev"
 
+// Run starts the JSON-RPC MCP loop on stdin/stdout.
 func Run(in io.Reader, out io.Writer) error {
 	br := bufio.NewReader(in)
 	for {
