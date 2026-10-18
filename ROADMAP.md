@@ -1,5 +1,8 @@
 # Roadmap
 
+## v0.1.1 (shipped)
+- Correctness release: hook command parsing, OpenCode deny false positive removed, opencode#55728 / #55814 shapes detected, honest README coverage table. See CHANGELOG.md.
+
 ## v0.1.0 (shipped)
 - `failshut` / `failshut audit` / `version` / `mcp`
 - Harnesses: Claude Code, Codex, OpenCode (best-effort Cursor when readable)
