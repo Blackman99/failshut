@@ -44,6 +44,7 @@ func run(args []string, out, errw io.Writer) int {
 	case "audit":
 		return cmdAudit(args[1:], out, errw)
 	case "mcp":
+		mcp.Version = version
 		if err := mcp.Run(os.Stdin, out); err != nil {
 			fmt.Fprintln(errw, "failshut mcp:", err)
 			return 1
