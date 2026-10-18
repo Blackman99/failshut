@@ -3,6 +3,7 @@ package rules_test
 import (
 	"os"
 	"path/filepath"
+	"strings"
 	"testing"
 
 	"github.com/Blackman99/failshut/discover"
@@ -138,4 +139,155 @@ func TestDiscoverSkipsMissing(t *testing.T) {
 		t.Fatalf("expected empty, got %v", cfgs)
 	}
 	_ = os.MkdirAll(filepath.Join(dir, ".claude"), 0o755)
+}
+
+func run(t *testing.T, r rules.Rule, ctx rules.Context) []report.Finding {
+	t.Helper()
+	fs, err := r.Run(ctx)
+	if err != nil {
+		t.Fatal(err)
+	}
+	return fs
+}
+
+func countSev(fs []report.Finding, sev report.Severity) int {
+	n := 0
+	for _, f := range fs {
+		if f.Severity == sev {
+			n++
+		}
+	}
+	return n
+}
+
+// claude-code#32990: project hook via "$CLAUDE_PROJECT_DIR"/..., script deleted.
+func TestHookMissing32990ProjectDir(t *testing.T) {
+	root := filepath.Join(fixtureRoot(t), "hook-missing-32990")
+	ctx := load(t, filepath.Join(root, "home"), filepath.Join(root, "project"))
+	fs := run(t, rules.HookMissing{}, ctx)
+	if countSev(fs, report.FailOpen) != 1 {
+		t.Fatalf("want 1 FAIL OPEN, got %#v", fs)
+	}
+	want := filepath.Join(root, "project", ".claude", "hooks", "block-src-writes.sh")
+	if !strings.Contains(fs[0].Evidence, want) {
+		t.Fatalf("evidence should name resolved script %s: %s", want, fs[0].Evidence)
+	}
+}
+
+// claude-code#102649: "bash ~/.claude/hooks/x.sh" and "bash $HOME/..." with the scripts gone.
+func TestHookMissing102649InterpreterPrefix(t *testing.T) {
+	root := filepath.Join(fixtureRoot(t), "hook-missing-102649")
+	ctx := load(t, filepath.Join(root, "home"), "")
+	fs := run(t, rules.HookMissing{}, ctx)
+	if countSev(fs, report.FailOpen) != 2 {
+		t.Fatalf("want 2 FAIL OPEN, got %#v", fs)
+	}
+	for _, f := range fs {
+		if strings.Contains(f.Evidence, "bash ~") && !strings.Contains(f.Evidence, filepath.Join(root, "home", ".claude", "hooks", "guard-bash.sh")) {
+			t.Fatalf("interpreter prefix not stripped: %s", f.Evidence)
+		}
+	}
+}
+
+// Existing scripts behind interpreter prefixes, quotes, $HOME, ${HOME}, ~ and
+// $CLAUDE_PROJECT_DIR must all be SEAL; bare commands, pipelines and prompt
+// hooks are not file references.
+func TestHookMissingSealedForms(t *testing.T) {
+	root := filepath.Join(fixtureRoot(t), "hook-missing-sealed")
+	ctx := load(t, filepath.Join(root, "home"), filepath.Join(root, "project"))
+	if fs := run(t, rules.HookMissing{}, ctx); len(fs) != 0 {
+		t.Fatalf("want no findings, got %#v", fs)
+	}
+}
+
+// Without a project, a user-scope $CLAUDE_PROJECT_DIR hook is unknowable: no guess.
+func TestHookMissingUnknownProjectDirSkipped(t *testing.T) {
+	root := filepath.Join(fixtureRoot(t), "hook-missing-sealed")
+	ctx := load(t, filepath.Join(root, "home"), "")
+	if fs := run(t, rules.HookMissing{}, ctx); len(fs) != 0 {
+		t.Fatalf("want no findings, got %#v", fs)
+	}
+}
+
+func TestHookMissingExit2Interpreters(t *testing.T) {
+	root := filepath.Join(fixtureRoot(t), "hook-missing-exit2")
+	ctx := load(t, filepath.Join(root, "home"), "")
+	fs := run(t, rules.HookMissing{}, ctx)
+	if countSev(fs, report.FailOpen) != 1 || countSev(fs, report.FailShut) != 1 {
+		t.Fatalf("want Stop=FAIL OPEN and PreToolUse=FAIL SHUT, got %#v", fs)
+	}
+	for _, f := range fs {
+		if f.Severity == report.FailOpen && !strings.HasPrefix(f.Evidence, "Stop ") {
+			t.Fatalf("FAIL OPEN should be the Stop hook: %s", f.Evidence)
+		}
+	}
+}
+
+func TestHookMissingNotExecutableDirect(t *testing.T) {
+	home := t.TempDir()
+	hooks := filepath.Join(home, ".claude", "hooks")
+	if err := os.MkdirAll(hooks, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(hooks, "g.sh"), []byte("#!/bin/sh\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	settings := `{"hooks":{"PreToolUse":[{"hooks":[{"type":"command","command":"~/.claude/hooks/g.sh"},{"type":"command","command":"sh ~/.claude/hooks/g.sh"}]}]}}`
+	if err := os.WriteFile(filepath.Join(home, ".claude", "settings.json"), []byte(settings), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	fs := run(t, rules.HookMissing{}, load(t, home, ""))
+	if len(fs) != 1 || !strings.Contains(fs[0].Evidence, "not executable") {
+		t.Fatalf("want exactly the direct call flagged as not executable, got %#v", fs)
+	}
+}
+
+// opencode#55728: tool-level deny and relative resources work → no finding.
+func TestDenyIgnoredSealed(t *testing.T) {
+	root := filepath.Join(fixtureRoot(t), "deny-ignored-sealed")
+	ctx := load(t, filepath.Join(root, "home"), filepath.Join(root, "project"))
+	if fs := run(t, rules.DenyIgnored{}, ctx); len(fs) != 0 {
+		t.Fatalf("working denies must not be FAIL OPEN, got %#v", fs)
+	}
+}
+
+func TestDenyIgnoredReportedShape(t *testing.T) {
+	root := filepath.Join(fixtureRoot(t), "deny-ignored")
+	ctx := load(t, filepath.Join(root, "home"), filepath.Join(root, "project"))
+	fs := run(t, rules.DenyIgnored{}, ctx)
+	if len(fs) != 1 || !strings.Contains(fs[0].Fix, `"Workshop/Checklist.md"`) {
+		t.Fatalf("want one finding with the ./-free fix, got %#v", fs)
+	}
+}
+
+// Absolute resource inside the project does not match the relative path (opencode#53365).
+func TestDenyIgnoredAbsoluteInsideProject(t *testing.T) {
+	proj := t.TempDir()
+	cfg := `{"permissions":[{"action":"read","resource":"` + filepath.ToSlash(filepath.Join(proj, "secrets", "*")) + `","effect":"deny"},` +
+		`{"action":"read","resource":"/etc/elsewhere/*","effect":"deny"}]}`
+	if err := os.WriteFile(filepath.Join(proj, "opencode.json"), []byte(cfg), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	fs := run(t, rules.DenyIgnored{}, load(t, t.TempDir(), proj))
+	if len(fs) != 1 || !strings.Contains(fs[0].Fix, `"secrets/*"`) {
+		t.Fatalf("want only the in-project absolute rule, got %#v", fs)
+	}
+}
+
+// opencode#55814: plan / edit-denying agents that can still launch "general".
+func TestDelegationEscalate55814(t *testing.T) {
+	root := filepath.Join(fixtureRoot(t), "delegation-escalate-55814")
+	ctx := load(t, filepath.Join(root, "home"), filepath.Join(root, "project"))
+	fs := run(t, rules.DelegationEscalate{}, ctx)
+	if countSev(fs, report.FailOpen) != 2 {
+		t.Fatalf("want plan + reviewer flagged, got %#v", fs)
+	}
+}
+
+func TestDelegationEscalate55814Sealed(t *testing.T) {
+	root := filepath.Join(fixtureRoot(t), "delegation-escalate-55814-sealed")
+	ctx := load(t, filepath.Join(root, "home"), filepath.Join(root, "project"))
+	if fs := run(t, rules.DelegationEscalate{}, ctx); len(fs) != 0 {
+		t.Fatalf("maintainer workaround must be sealed, got %#v", fs)
+	}
 }

@@ -61,12 +61,12 @@ failshut version</code></pre>
 
   <h2 id="reference">Rule IDs</h2>
   <ul>
-    <li><code>deny-ignored</code> — deny on read/grep/glob-like tools known to be ignored by harness quirks (opencode#55728 shape)</li>
-    <li><code>ask-vs-effective</code> — Ask / approval_policy vs sandbox_approval=false or require_escalated + disabled sandbox (codex#54298 / #54440)</li>
-    <li><code>hook-missing</code> — hook/plugin path referenced but missing or not executable</li>
+    <li><code>deny-ignored</code> — OpenCode <code>read</code>/<code>edit</code> deny/ask rule that never matches: <code>./</code>-prefixed resource (opencode#55728) or absolute resource inside the project (opencode#53365). A plain <code>"read": "deny"</code> works and is not flagged.</li>
+    <li><code>ask-vs-effective</code> — heuristic Codex approval/sandbox mismatches; does not cover codex#54298 (Codex <code>granular.sandbox_approval=false</code> auto-rejects, i.e. fails shut)</li>
+    <li><code>hook-missing</code> — hook script missing or not executable; the command is parsed like a shell (<code>bash</code>/<code>python3</code>/<code>node</code> prefixes, quotes, <code>~</code>, <code>$HOME</code>, <code>"$CLAUDE_PROJECT_DIR"</code>), never executed (claude-code#32990, #102649)</li>
     <li><code>path-traversal-config</code> — <code>..</code> segment in project/session path that can load a sibling opencode.json (opencode#55909)</li>
-    <li><code>delegation-escalate</code> — plan/read-only or restrictive profile can spawn a general/write subagent without the same profile (opencode#55814, codex#54448)</li>
-    <li><code>ask-auto-allow</code> — hooks / permissionMode ask paired with desktop auto-allow (claude-code#102582)</li>
+    <li><code>delegation-escalate</code> — OpenCode agent (incl. <code>plan</code>) that denies edit but does not deny the <code>general</code> subagent (opencode#55814)</li>
+    <li><code>ask-auto-allow</code> — heuristic hook-ask + auto-allow pairing; claude-code#102582 itself is not decidable from settings yet</li>
   </ul>
 
   <h2 id="faq">FAQ</h2>

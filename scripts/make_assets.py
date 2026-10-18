@@ -155,18 +155,19 @@ def demo_gif():
     mono_sm = font(MONO, 13)
     title_f = font(SORA, 13)
     lines = [
-        ("$ failshut audit", SOAP, mono),
+        ("$ failshut audit --project ~/app", SOAP, mono),
         ("", CONCRETE, mono),
         ("FAIL OPEN — 1 finding(s) where policy may not hold:", FAIL, mono),
         ("", CONCRETE, mono),
-        ("[1] ask-vs-effective  (codex)", (255, 255, 255), mono),
-        ("    file:     ~/.codex/config.toml", CONCRETE, mono_sm),
-        ('    evidence: approval_policy="ask"', CONCRETE, mono_sm),
-        ("              but sandbox_approval=false", CONCRETE, mono_sm),
-        ("    fix:      Set sandbox_approval=true", CONCRETE, mono_sm),
-        ("              so Ask cannot be skipped", CONCRETE, mono_sm),
+        ("[1] hook-missing  (claude-code)", (255, 255, 255), mono),
+        ("    file:     ~/app/.claude/settings.json", CONCRETE, mono_sm),
+        ('    evidence: PreToolUse command', CONCRETE, mono_sm),
+        ('              "$CLAUDE_PROJECT_DIR"/.claude/hooks/block-src-writes.sh', CONCRETE, mono_sm),
+        ("              — missing", FAIL, mono_sm),
+        ("    fix:      Restore the hook script. A hook that cannot", CONCRETE, mono_sm),
+        ("              start lets the tool call through.", CONCRETE, mono_sm),
         ("", CONCRETE, mono),
-        ("Summary: 1 FAIL OPEN · 5 FAIL SHUT · 1 config", CONCRETE, mono),
+        ("Summary: 1 FAIL OPEN · 5 FAIL SHUT checks · 1 config(s)", CONCRETE, mono),
     ]
     steps = list(range(1, len(lines) + 1)) + [len(lines)] * 12
     for n in steps:
@@ -189,7 +190,7 @@ def demo_gif():
                 bbox = d.textbbox((pad + 20, y), "Summary: 1 ", font=fnt)
                 d.text((bbox[2], y), "FAIL OPEN", fill=FAIL, font=fnt)
                 bbox2 = d.textbbox((bbox[2], y), "FAIL OPEN", font=fnt)
-                d.text((bbox2[2], y), " · 5 FAIL SHUT · 1 config", fill=SOAP, font=fnt)
+                d.text((bbox2[2], y), " · 5 FAIL SHUT checks · 1 config(s)", fill=SOAP, font=fnt)
             else:
                 d.text((pad + 20, y), line, fill=col, font=fnt)
             y += 20 if fnt is mono_sm else 22
@@ -207,6 +208,10 @@ def demo_gif():
     print("demo.gif", len(frames), "frames")
 
 if __name__ == "__main__":
+    import sys
+    if sys.argv[1:] == ["demo"]:
+        demo_gif()
+        sys.exit(0)
     logo512()
     card(1200, 630, "og.png")
     card(1280, 640, "social-preview.png")

@@ -1,0 +1,19 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          { "type": "command", "command": "bash ~/.claude/hooks/guard.sh" },
+          { "type": "command", "command": "python3 \"$HOME/.claude/hooks/check env.py\" --strict" },
+          { "type": "command", "command": "node ${HOME}/.claude/hooks/audit.js" },
+          { "type": "command", "command": "~/.claude/hooks/direct.sh" },
+          { "type": "command", "command": "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-src-writes.sh" },
+          { "type": "command", "command": "jq -r .tool_name" },
+          { "type": "command", "command": "echo ask | tee /dev/null" },
+          { "type": "prompt", "prompt": "Ask before force-pushing." }
+        ]
+      }
+    ]
+  }
+}

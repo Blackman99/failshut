@@ -1,0 +1,17 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "agents": {
+    "plan": {
+      "permissions": [
+        { "action": "subagent", "resource": "*", "effect": "deny" },
+        { "action": "subagent", "resource": "explore", "effect": "allow" },
+        { "action": "shell", "resource": "*", "effect": "ask" }
+      ]
+    },
+    "build": {
+      "permissions": [
+        { "action": "edit", "resource": "*", "effect": "allow" }
+      ]
+    }
+  }
+}
