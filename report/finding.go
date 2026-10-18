@@ -68,14 +68,12 @@ func WriteHuman(w io.Writer, r Result, c Colors) {
 	}
 
 	opens := make([]Finding, 0)
-	shuts := 0
 	for _, f := range r.Findings {
 		if f.Severity == FailOpen {
 			opens = append(opens, f)
-		} else {
-			shuts++
 		}
 	}
+	shuts := r.FailShut // rules that came back sealed
 
 	if len(opens) == 0 {
 		fmt.Fprintf(w, "%sFAIL SHUT%s — %d config(s) scanned, no fail-open findings.\n", c.Green+c.Bold, c.Reset, r.Configs)

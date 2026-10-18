@@ -1,7 +1,6 @@
 {
-  "permission": {
-    "read": "deny",
-    "grep": "deny",
-    "edit": "ask"
-  }
+  "$schema": "https://opencode.ai/config.json",
+  "permissions": [
+    { "action": "read", "resource": "./Workshop/Checklist.md", "effect": "deny" }
+  ]
 }

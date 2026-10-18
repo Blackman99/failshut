@@ -5,8 +5,9 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"path"
 	"path/filepath"
-	"regexp"
+	"runtime"
 	"strings"
 
 	"github.com/Blackman99/failshut/discover"
@@ -119,96 +120,114 @@ func boolishFalse(v any) bool {
 	}
 }
 
-// DenyIgnored flags OpenCode-style deny rules on read tools that harness quirks ignore.
-// Mirrors anomalyco/opencode#55728 shape: permission.deny includes read/grep/glob-like tools
-// that the runtime still allows.
+// DenyIgnored flags OpenCode deny/ask path rules that the runtime never matches,
+// so the read or edit they were meant to stop goes through.
+//
+// OpenCode compares a rule's resource literally against the project-relative
+// path the read/edit tool checks. A resource spelled "./Workshop/x.md" never
+// matches "Workshop/x.md" (anomalyco/opencode#55728, reproduced by the
+// maintainers' bot), and an absolute resource pointing inside the project does
+// not match either (open fix anomalyco/opencode#53365). A plain tool-level
+// deny such as {"read": "deny"} or a relative resource without "./" does work
+// and is not reported.
 type DenyIgnored struct{}
 
 func (DenyIgnored) ID() string { return "deny-ignored" }
 
-var ignoredDenyTools = regexp.MustCompile(`(?i)^(read|grep|glob|list|ls|search|file_read|view)$`)
+// opencodeRule is one v2 {action, resource, effect} permission rule.
+type opencodeRule struct {
+	Action, Resource, Effect string
+}
+
+func opencodeRules(v any) []opencodeRule {
+	var out []opencodeRule
+	for _, item := range asSlice(v) {
+		m := asMap(item)
+		if m == nil {
+			continue
+		}
+		a, _ := m["action"].(string)
+		r, _ := m["resource"].(string)
+		e, _ := m["effect"].(string)
+		if a == "" || e == "" {
+			continue
+		}
+		if r == "" {
+			r = "*"
+		}
+		out = append(out, opencodeRule{Action: strings.ToLower(a), Resource: r, Effect: strings.ToLower(e)})
+	}
+	return out
+}
+
+// opencodeProjectDir is the project an OpenCode config applies to, "" if unknown.
+func opencodeProjectDir(project string) string {
+	if project == "" {
+		return ""
+	}
+	abs, err := filepath.Abs(project)
+	if err != nil {
+		return ""
+	}
+	return abs
+}
 
 func (DenyIgnored) Run(ctx Context) ([]report.Finding, error) {
 	var out []report.Finding
 	for _, c := range ctx.Configs {
-		if c.Harness != "opencode" && c.Harness != "claude-code" {
+		if c.Harness != "opencode" {
 			continue
 		}
-		m, raw, err := parseJSON(c.Path)
+		m, _, err := parseJSON(c.Path)
 		if err != nil || m == nil {
 			continue
 		}
-		// OpenCode: permission.deny / permissions.deny arrays or map
-		for _, key := range []string{"permission", "permissions"} {
-			perm := asMap(m[key])
-			if perm == nil {
-				continue
-			}
-			for _, dk := range []string{"deny", "blocked", "block"} {
-				findDenyHits(c, perm[dk], raw, &out)
-			}
-			// also: permission: { "read": "deny" } style
-			for tool, val := range perm {
-				vs := strings.ToLower(asString(val))
-				if (vs == "deny" || vs == "blocked" || vs == "false") && ignoredDenyTools.MatchString(tool) {
+		proj := opencodeProjectDir(ctx.Project)
+		check := func(where string, rules []opencodeRule) {
+			for i, r := range rules {
+				if r.Action != "read" && r.Action != "edit" {
+					continue
+				}
+				if r.Effect != "deny" && r.Effect != "ask" {
+					continue
+				}
+				ev := fmt.Sprintf(`%s[%d] {action:%q, resource:%q, effect:%q}`, where, i, r.Action, r.Resource, r.Effect)
+				switch {
+				case strings.HasPrefix(r.Resource, "./"):
 					out = append(out, report.Finding{
 						ID: "deny-ignored", Harness: c.Harness, File: c.Path, Severity: report.FailOpen,
-						Evidence: quoteEvidence(fmt.Sprintf(`%s.%s = %q`, key, tool, asString(val)), 180),
-						Fix:      "Move deny off read-only tools that OpenCode may ignore; deny write/edit/bash instead, or upgrade past the deny-ignored bug (opencode#55728).",
+						Evidence: quoteEvidence(ev+" — a leading ./ never matches the project-relative path the tool checks", 240),
+						Fix:      fmt.Sprintf("Drop the leading ./: \"resource\": %q (anomalyco/opencode#55728).", strings.TrimPrefix(r.Resource, "./")),
+					})
+				case proj != "" && filepath.IsAbs(r.Resource) && pathInside(r.Resource, proj):
+					rel, _ := filepath.Rel(proj, r.Resource)
+					out = append(out, report.Finding{
+						ID: "deny-ignored", Harness: c.Harness, File: c.Path, Severity: report.FailOpen,
+						Evidence: quoteEvidence(ev+" — absolute path inside the project; the tool checks the relative path", 240),
+						Fix:      fmt.Sprintf("Use the project-relative form \"resource\": %q until anomalyco/opencode#53365 lands.", filepath.ToSlash(rel)),
 					})
 				}
 			}
 		}
-		// Claude-style top-level deny arrays
-		findDenyHits(c, m["deny"], raw, &out)
-		if pm := asMap(m["permissions"]); pm != nil {
-			findDenyHits(c, pm["deny"], raw, &out)
+		check("permissions", opencodeRules(m["permissions"]))
+		for _, key := range []string{"agents", "agent"} {
+			for name, av := range asMap(m[key]) {
+				if am := asMap(av); am != nil {
+					check(fmt.Sprintf("%s.%s.permissions", key, name), opencodeRules(am["permissions"]))
+				}
+			}
 		}
 	}
 	return out, nil
 }
 
-func findDenyHits(c discover.Config, v any, raw []byte, out *[]report.Finding) {
-	switch t := v.(type) {
-	case []any:
-		for _, item := range t {
-			s := asString(item)
-			tool := firstToken(s)
-			if ignoredDenyTools.MatchString(tool) || ignoredDenyTools.MatchString(s) {
-				*out = append(*out, report.Finding{
-					ID: "deny-ignored", Harness: c.Harness, File: c.Path, Severity: report.FailOpen,
-					Evidence: quoteEvidence(fmt.Sprintf("deny entry %q", s), 180),
-					Fix:      "Deny rules on read/grep/glob-like tools are ignored by some harness versions; deny mutating tools or pin a fixed release (opencode#55728).",
-				})
-			}
-		}
-	case map[string]any:
-		for tool, val := range t {
-			vs := strings.ToLower(asString(val))
-			if ignoredDenyTools.MatchString(tool) && (vs == "deny" || vs == "true" || vs == "blocked" || vs == "ask") {
-				// ask on read is ok-ish; only flag deny/blocked
-				if vs == "ask" {
-					continue
-				}
-				*out = append(*out, report.Finding{
-					ID: "deny-ignored", Harness: c.Harness, File: c.Path, Severity: report.FailOpen,
-					Evidence: quoteEvidence(fmt.Sprintf("deny[%q]=%v", tool, val), 180),
-					Fix:      "Replace ignored read-tool denies with write/bash denies, or verify runtime still enforces after upgrade.",
-				})
-			}
-		}
+// pathInside reports whether p is dir or below it (lexically, glob suffix ignored).
+func pathInside(p, dir string) bool {
+	if i := strings.IndexAny(p, "*?["); i >= 0 {
+		p = p[:i]
 	}
-	_ = raw
-}
-
-func firstToken(s string) string {
-	s = strings.TrimSpace(s)
-	for _, sep := range []string{" ", ":", "/", "("} {
-		if i := strings.Index(s, sep); i > 0 {
-			return s[:i]
-		}
-	}
-	return s
+	rel, err := filepath.Rel(dir, filepath.Clean(p))
+	return err == nil && rel != ".." && !strings.HasPrefix(rel, ".."+string(filepath.Separator))
 }
 
 // AskVsEffective flags UI/config ask + effective sandbox_approval=false (Codex#54298/#54440).
@@ -305,13 +324,40 @@ func checkAskMismatch(c discover.Config, m map[string]any, prefix string, out *[
 	}
 }
 
-// HookMissing flags referenced hook/plugin paths that are missing or not executable.
+// HookMissing flags hook commands whose script is missing or cannot be run.
+//
+// Claude Code treats a hook that exits with any code other than 2 as a
+// non-blocking error and lets the tool call proceed, so a hook whose script is
+// gone fails open (claude-code#32990, #102649). The command string is parsed
+// like a shell would (quotes, ~, $HOME, $CLAUDE_PROJECT_DIR, interpreter
+// prefixes such as "bash", "python3", "node"), never executed.
 type HookMissing struct{}
 
 func (HookMissing) ID() string { return "hook-missing" }
 
+// Events where Claude Code treats exit 2 as a block. Stop-family events are
+// excluded on purpose: their "missing script" heuristic downgrades exit 2 with
+// "No such file" / "can't open" stderr to non-blocking (claude-code#99171).
+var exit2BlockingEvents = map[string]bool{"PreToolUse": true, "PermissionRequest": true, "UserPromptSubmit": true}
+
+// Interpreters that exit 2 when the script file cannot be opened.
+func exitsTwoOnMissingScript(interp string) bool {
+	return strings.HasPrefix(interp, "python") || interp == "perl"
+}
+
+type hookScope struct {
+	cfg        discover.Config
+	env        map[string]string
+	relBase    string // directory relative script paths resolve against ("" = unknown)
+	configBase string
+}
+
 func (HookMissing) Run(ctx Context) ([]report.Finding, error) {
 	var out []report.Finding
+	home := ctx.Home
+	if home == "" {
+		home, _ = os.UserHomeDir()
+	}
 	for _, c := range ctx.Configs {
 		if c.Harness != "claude-code" && c.Harness != "opencode" && c.Harness != "cursor" {
 			continue
@@ -320,98 +366,114 @@ func (HookMissing) Run(ctx Context) ([]report.Finding, error) {
 		if err != nil || m == nil {
 			continue
 		}
-		baseDir := filepath.Dir(c.Path)
-		collectHooks(c, m["hooks"], baseDir, &out)
+		sc := hookScope{cfg: c, env: map[string]string{}, configBase: filepath.Dir(c.Path)}
+		if home != "" {
+			sc.env["HOME"] = home
+		}
+		projectDir := ""
+		if c.Harness == "claude-code" && (c.Kind == "project" || c.Kind == "project.local") {
+			// <project>/.claude/settings.json → hooks run with the project as cwd.
+			projectDir = filepath.Dir(filepath.Dir(c.Path))
+		} else if ctx.Project != "" {
+			projectDir = ctx.Project
+		}
+		if projectDir != "" {
+			if abs, err := filepath.Abs(projectDir); err == nil {
+				projectDir = abs
+			}
+			sc.env["CLAUDE_PROJECT_DIR"] = projectDir
+		}
+		if c.Harness == "claude-code" {
+			sc.relBase = projectDir
+		} else {
+			sc.relBase = sc.configBase
+		}
+		collectHooks(sc, "", m["hooks"], &out)
 		if plugins := asMap(m["plugins"]); plugins != nil {
 			for name, pv := range plugins {
-				checkHookPath(c, fmt.Sprintf("plugins.%s", name), asString(pv), baseDir, &out)
+				if s, ok := pv.(string); ok {
+					checkHookCommand(sc, "", fmt.Sprintf("plugins.%s", name), s, &out)
+				}
 				if pm := asMap(pv); pm != nil {
 					for _, k := range []string{"path", "command", "script", "entry"} {
-						if p := asString(pm[k]); p != "" && p != "<nil>" {
-							checkHookPath(c, fmt.Sprintf("plugins.%s.%s", name, k), p, baseDir, &out)
+						if s, ok := pm[k].(string); ok && s != "" {
+							checkHookCommand(sc, "", fmt.Sprintf("plugins.%s.%s", name, k), s, &out)
 						}
 					}
 				}
 			}
 		}
-		// Claude Code format: hooks.PreToolUse = [{hooks:[{command:...}]}] or hooks.PreToolUse = [{command:...}]
 	}
 	return out, nil
 }
 
-func collectHooks(c discover.Config, v any, baseDir string, out *[]report.Finding) {
+func collectHooks(sc hookScope, event string, v any, out *[]report.Finding) {
 	switch t := v.(type) {
 	case map[string]any:
-		for event, ev := range t {
-			collectHooks(c, ev, baseDir, out)
-			_ = event
+		for ev, sub := range t {
+			collectHooks(sc, ev, sub, out)
 		}
 	case []any:
 		for _, item := range t {
 			if m := asMap(item); m != nil {
-				for _, k := range []string{"command", "path", "script", "matcher"} {
-					// matcher is not a path
-					if k == "matcher" {
-						continue
-					}
-					if p := asString(m[k]); p != "" && p != "<nil>" {
-						checkHookPath(c, k, p, baseDir, out)
+				if typ, _ := m["type"].(string); typ != "" && typ != "command" {
+					continue // prompt / agent / http hooks have no script file
+				}
+				for _, k := range []string{"command", "path", "script"} {
+					if s, ok := m[k].(string); ok && s != "" {
+						checkHookCommand(sc, event, k, s, out)
 					}
 				}
 				if nested := m["hooks"]; nested != nil {
-					collectHooks(c, nested, baseDir, out)
+					collectHooks(sc, event, nested, out)
 				}
 			} else if s, ok := item.(string); ok {
-				checkHookPath(c, "hooks", s, baseDir, out)
+				checkHookCommand(sc, event, "hooks", s, out)
 			}
 		}
 	case string:
-		checkHookPath(c, "hooks", t, baseDir, out)
+		checkHookCommand(sc, event, "hooks", t, out)
 	}
 }
 
-func checkHookPath(c discover.Config, field, p, baseDir string, out *[]report.Finding) {
-	p = strings.TrimSpace(p)
-	if p == "" || p == "<nil>" {
-		return
+func checkHookCommand(sc hookScope, event, field, cmd string, out *[]report.Finding) {
+	inv, ok := parseHookCommand(cmd, sc.env)
+	if !ok {
+		return // bare command on PATH, inline code, or not statically resolvable
 	}
-	// skip inline shell one-liners / JSON payloads
-	if strings.ContainsAny(p, "\n|$") || strings.HasPrefix(p, "{") {
-		return
-	}
-	// only look like paths
-	if !strings.Contains(p, "/") && !strings.HasSuffix(p, ".sh") && !strings.HasSuffix(p, ".js") &&
-		!strings.HasSuffix(p, ".mjs") && !strings.HasSuffix(p, ".py") && !strings.HasSuffix(p, ".ts") {
-		// bare command names are ok
-		if !strings.HasPrefix(p, ".") {
-			return
+	resolved := inv.Script
+	if !filepath.IsAbs(resolved) {
+		if sc.relBase == "" {
+			return // relative to an unknown session cwd: do not guess
 		}
+		resolved = filepath.Join(sc.relBase, resolved)
 	}
-	resolved := p
-	if strings.HasPrefix(p, "~/") {
-		home, _ := os.UserHomeDir()
-		resolved = filepath.Join(home, p[2:])
-	} else if !filepath.IsAbs(p) {
-		resolved = filepath.Join(baseDir, p)
+	label := field
+	if event != "" {
+		label = event + " " + field
 	}
 	st, err := os.Stat(resolved)
-	if err != nil {
-		*out = append(*out, report.Finding{
-			ID: "hook-missing", Harness: c.Harness, File: c.Path, Severity: report.FailOpen,
-			Evidence: quoteEvidence(fmt.Sprintf("%s references %q (resolved %q) — missing", field, p, resolved), 180),
-			Fix:      "Create the hook script or fix the path; a missing hook means the deny/ask gate never runs.",
-		})
+	if err != nil || st.IsDir() {
+		f := report.Finding{
+			ID: "hook-missing", Harness: sc.cfg.Harness, File: sc.cfg.Path, Severity: report.FailOpen,
+			Evidence: quoteEvidence(fmt.Sprintf("%s %q runs %s — missing", label, cmd, resolved), 240),
+			Fix:      "Restore the hook script or fix the path. A hook that cannot start exits non-2, and Claude Code lets the tool call through.",
+		}
+		if sc.cfg.Harness == "claude-code" && exitsTwoOnMissingScript(inv.Interpreter) && exit2BlockingEvents[event] {
+			// python3/perl exit 2 on a missing script, which Claude Code treats as a block:
+			// the gate is broken shut (every matching call blocked), not open.
+			f.Severity = report.FailShut
+			f.Evidence = quoteEvidence(fmt.Sprintf("%s %q runs %s — missing; %s exits 2, so matching calls are blocked, not allowed", label, cmd, resolved, inv.Interpreter), 240)
+			f.Fix = "Restore the hook script; until then every matching tool call is blocked."
+		}
+		*out = append(*out, f)
 		return
 	}
-	if st.IsDir() {
-		return
-	}
-	// executable bit (unix)
-	if st.Mode()&0o111 == 0 && (strings.HasSuffix(resolved, ".sh") || strings.HasPrefix(p, "./") || strings.HasPrefix(p, "/")) {
+	if inv.Interpreter == "" && runtime.GOOS != "windows" && st.Mode()&0o111 == 0 {
 		*out = append(*out, report.Finding{
-			ID: "hook-missing", Harness: c.Harness, File: c.Path, Severity: report.FailOpen,
-			Evidence: quoteEvidence(fmt.Sprintf("%s path %q exists but is not executable (mode %s)", field, resolved, st.Mode()), 180),
-			Fix:      "chmod +x the hook script so the harness can invoke it.",
+			ID: "hook-missing", Harness: sc.cfg.Harness, File: sc.cfg.Path, Severity: report.FailOpen,
+			Evidence: quoteEvidence(fmt.Sprintf("%s %q runs %s directly but it is not executable (mode %s)", label, cmd, resolved, st.Mode()), 240),
+			Fix:      "chmod +x the hook script, or invoke it through its interpreter (bash/python3/node).",
 		})
 	}
 }
@@ -487,6 +549,9 @@ func (DelegationEscalate) Run(ctx Context) ([]report.Finding, error) {
 			m, _, err := parseJSON(c.Path)
 			if err != nil || m == nil {
 				continue
+			}
+			if c.Harness == "opencode" {
+				out = append(out, opencodeSubagentEscalation(c, m)...)
 			}
 			mode := strings.ToLower(asString(m["permissionMode"]))
 			if mode == "" {
@@ -573,6 +638,57 @@ func (DelegationEscalate) Run(ctx Context) ([]report.Finding, error) {
 		}
 	}
 	return out, nil
+}
+
+// opencodeSubagentEscalation flags OpenCode v2 agents that deny edit but do not
+// deny launching the write-capable "general" subagent. A child session runs
+// with its own policy, so the parent's edit deny does not carry over
+// (anomalyco/opencode#55814; the shipped plan agent denies edit but not subagent).
+func opencodeSubagentEscalation(c discover.Config, m map[string]any) []report.Finding {
+	var out []report.Finding
+	for _, key := range []string{"agents", "agent"} {
+		for name, av := range asMap(m[key]) {
+			am := asMap(av)
+			if am == nil {
+				continue
+			}
+			rules := opencodeRules(am["permissions"])
+			if _, isArray := am["permissions"].([]any); !isArray && name != "plan" {
+				continue
+			}
+			editDenied := name == "plan" // shipped plan policy denies edit
+			if e, ok := lastMatch(rules, "edit", "*"); ok {
+				editDenied = e == "deny"
+			}
+			if !editDenied {
+				continue
+			}
+			if e, ok := lastMatch(rules, "subagent", "general"); ok && e == "deny" {
+				continue
+			}
+			out = append(out, report.Finding{
+				ID: "delegation-escalate", Harness: c.Harness, File: c.Path, Severity: report.FailOpen,
+				Evidence: quoteEvidence(fmt.Sprintf("%s.%s denies edit but does not deny subagent \"general\", which runs with its own (write-capable) policy", key, name), 240),
+				Fix:      fmt.Sprintf(`Add to %s.%s.permissions: {"action":"subagent","resource":"*","effect":"deny"} then {"action":"subagent","resource":"explore","effect":"allow"} (anomalyco/opencode#55814).`, key, name),
+			})
+		}
+	}
+	return out
+}
+
+// lastMatch returns the effect of the last rule for action whose resource glob
+// matches res (OpenCode evaluates rules last-match-wins).
+func lastMatch(rules []opencodeRule, action, res string) (string, bool) {
+	effect, found := "", false
+	for _, r := range rules {
+		if r.Action != action {
+			continue
+		}
+		if ok, _ := path.Match(r.Resource, res); ok || r.Resource == "*" {
+			effect, found = r.Effect, true
+		}
+	}
+	return effect, found
 }
 
 // AskAutoAllow flags hooks that return ask paired with desktop/auto-allow (claude-code#102582).

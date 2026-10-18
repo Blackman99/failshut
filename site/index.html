@@ -483,26 +483,26 @@
       <span class="bubbles-mini" aria-hidden="true"></span>
       <span class="fit-id">deny-ignored</span>
       <span class="fit-state">FAIL OPEN</span>
-      <span class="fit-body">Deny on read/grep-like tools the harness may skip (opencode#55728).</span>
+      <span class="fit-body">OpenCode deny on <code>./Workshop/…</code> never matches the path the read tool checks (opencode#55728).</span>
     </button>
     <button type="button" class="fitting seal" role="listitem" data-rule="hook-present" aria-expanded="false">
       <span class="nut" aria-hidden="true"></span>
       <span class="fit-id">hook-present</span>
       <span class="fit-state">SEAL</span>
-      <span class="fit-body">Referenced hook path exists and is executable — dry joint.</span>
+      <span class="fit-body">Hook script resolves (<code>bash ~/…</code>, <code>"$CLAUDE_PROJECT_DIR"/…</code>) and can run — dry joint.</span>
     </button>
-    <button type="button" class="fitting leak" role="listitem" data-rule="ask-vs-effective" aria-expanded="false">
+    <button type="button" class="fitting leak" role="listitem" data-rule="hook-missing" aria-expanded="false">
       <span class="nut" aria-hidden="true"></span>
       <span class="bubbles-mini" aria-hidden="true"></span>
-      <span class="fit-id">ask-vs-effective</span>
+      <span class="fit-id">hook-missing</span>
       <span class="fit-state">FAIL OPEN</span>
-      <span class="fit-body">UI Ask vs <code>sandbox_approval=false</code> / silent escalate (codex#54298, #54440).</span>
+      <span class="fit-body">Settings still point at a deleted hook script; the tool call goes through (claude-code#32990).</span>
     </button>
     <button type="button" class="fitting seal" role="listitem" data-rule="deny-covered" aria-expanded="false">
       <span class="nut" aria-hidden="true"></span>
       <span class="fit-id">deny-covered</span>
       <span class="fit-state">SEAL</span>
-      <span class="fit-body">Deny rules cover tools the harness actually enforces — no bubble.</span>
+      <span class="fit-body">Plain <code>"read": "deny"</code> or a relative resource — the deny really matches. No bubble.</span>
     </button>
     <button type="button" class="fitting leak" role="listitem" data-rule="path-traversal-config" aria-expanded="false">
       <span class="nut" aria-hidden="true"></span>
@@ -516,7 +516,7 @@
       <span class="bubbles-mini" aria-hidden="true"></span>
       <span class="fit-id">delegation-escalate</span>
       <span class="fit-state">FAIL OPEN</span>
-      <span class="fit-body">Plan/restrictive profile spawns a general subagent (opencode#55814, codex#54448).</span>
+      <span class="fit-body">Plan denies edit but can still launch the <code>general</code> subagent (opencode#55814).</span>
     </button>
   </div>
   <p class="fineprint">v0.1 is a <strong>static</strong> auditor — it does not intercept live tool calls. See <a href="docs/">docs</a>.</p>
@@ -535,18 +535,21 @@
     <pre class="term"><code><span class="fail">FAIL OPEN</span> — 1 finding(s)
 where policy may not hold:
 
-<span class="b">[1] ask-vs-effective</span> (codex)
-  file: ~/.codex/config.toml
+<span class="b">[1] hook-missing</span> (claude-code)
+  file: ~/app/.claude/settings.json
   evidence:
-    approval_policy="ask"
-    but sandbox_approval=false
-  fix: Set sandbox_approval=true
-       so Ask cannot be skipped
+    PreToolUse command
+    "$CLAUDE_PROJECT_DIR"/.claude/
+      hooks/block-src-writes.sh
+    — missing
+  fix: Restore the hook script.
+       A hook that cannot start
+       lets the tool call through.
 
 Summary: <span class="fail">1 FAIL OPEN</span>
   · <span class="ok">5 FAIL SHUT checks</span>
   · 1 config(s)</code></pre>
-    <img class="demo" src="demo.gif" width="760" height="380" alt="Terminal recording of failshut audit finding FAIL OPEN on ask-vs-effective"/>
+    <img class="demo" src="demo.gif" width="760" height="380" alt="Terminal recording of failshut audit finding FAIL OPEN on hook-missing"/>
   </div>
 </section>
 
@@ -554,8 +557,10 @@ Summary: <span class="fail">1 FAIL OPEN</span>
 <section class="bay" id="tickets">
   <div class="clamp-row"><span class="u-bolt" aria-hidden="true"></span><span class="bay-tag">BAY 04 · OPEN TICKETS</span></div>
   <h2 class="bay-h">Why the soap test exists</h2>
-  <p class="bay-lede">Fresh reports keep landing where policy says one thing and runtime does another:</p>
+  <p class="bay-lede">Fresh reports keep landing where policy says one thing and runtime does another. Not every ticket is config-detectable — the <a href="https://github.com/Blackman99/failshut#coverage">coverage table</a> says which ones v0.1 catches.</p>
   <ul class="ticket-rack">
+    <li class="ticket"><a href="https://github.com/anthropics/claude-code/issues/32990"><span class="t-id">claude-code#32990</span><span class="t-sum">hook script deleted, edits ran</span></a></li>
+    <li class="ticket"><a href="https://github.com/anthropics/claude-code/issues/102649"><span class="t-id">claude-code#102649</span><span class="t-sum">hooks dir vanished, guards off</span></a></li>
     <li class="ticket"><a href="https://github.com/anomalyco/opencode/issues/55728"><span class="t-id">opencode#55728</span><span class="t-sum">deny ignored</span></a></li>
     <li class="ticket"><a href="https://github.com/anomalyco/opencode/issues/55909"><span class="t-id">opencode#55909</span><span class="t-sum"><code>..</code> loads sibling config</span></a></li>
     <li class="ticket"><a href="https://github.com/anomalyco/opencode/issues/55814"><span class="t-id">opencode#55814</span><span class="t-sum">plan-mode escalate via subagent</span></a></li>
