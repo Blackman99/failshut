@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+### Changed
+- Logo recentred and rebalanced so the mark fills the canvas. `scripts/make_assets.py logo` now generates logo-512.png, icon-192.png, apple-touch-icon.png, favicon-32/16.png, favicon.ico, logo.svg and favicon.svg from one geometry. Favicon sizes use a simplified variant.
+
 ## v0.1.1 — 2026-10-18
 
 Correctness release ([#3](https://github.com/Blackman99/failshut/pull/3)). Still a static config audit: nothing intercepts live tool calls.
