@@ -1,5 +1,10 @@
 #!/usr/bin/env python3
-"""Generate logo-512.png, og.png, social-preview.png, demo.gif in copper/soap language."""
+"""Generate the logo mark (logo-512.png, icon PNGs, favicon, logo.svg), og.png, social-preview.png and demo.gif in copper/soap language.
+
+    python3 scripts/make_assets.py          # everything
+    python3 scripts/make_assets.py logo     # logo mark + icons only
+    python3 scripts/make_assets.py demo     # demo.gif only
+"""
 from pathlib import Path
 from PIL import Image, ImageDraw, ImageFont
 import math, shutil
@@ -87,14 +92,153 @@ def elbow(draw, cx, cy, scale=1.0):
         fill=(255, 255, 255, 160),
     )
 
-def logo512():
-    s = 512
-    im = Image.new("RGBA", (s, s), (0, 0, 0, 0))
+# --- logo mark -------------------------------------------------------------
+# One geometry, in a 128-unit box, drives logo-512.png, the icon PNGs and the
+# SVGs (logo.svg / favicon.svg), so every size shows the same centred mark:
+# a copper 90° elbow with a flare nut on the bend and a soap bubble rising from
+# that joint into the elbow's inner corner. Union bbox is centred on (64, 64).
+LOGO_K = 1.12          # scale about the centre so the mark fills the canvas
+PIPE_W = 24            # pipe outer width (units)
+BEND_C = (66, 70)      # bend centre
+BEND_R = 30            # bend centreline radius
+PIPE_X0 = 32           # left end of the horizontal run
+PIPE_Y1 = 28           # top end of the vertical run
+NUT = (66 + BEND_R * math.cos(math.pi / 4), 70 + BEND_R * math.sin(math.pi / 4))
+NUT_R = (15, 11, 6)
+BUBBLE = (58, 58, 28)  # cx, cy, r — touches the nut, sits in the inner corner
+
+
+def _u(v):
+    return (v - 64) * LOGO_K + 64
+
+
+def _hex(c):
+    return "#%02x%02x%02x" % c
+
+
+def _pipe_layers(simple=False):
+    # (offset toward the outside of the bend, width, colour)
+    if simple:  # favicon sizes: fewer, bolder bands so 16/32 px stay crisp
+        return [(0, PIPE_W, (110, 63, 24)), (0.5, PIPE_W - 6, COPPER), (-3.5, 7, COPPER_HI)]
+    return [
+        (0, PIPE_W, (110, 63, 24)),
+        (0.5, PIPE_W - 5, COPPER),
+        (-4.5, 6, COPPER_HI),
+        (6.5, 3.5, COPPER_D),
+    ]
+
+
+def _bubble_rgba(t):
+    """Radial colour stops for the bubble, t in [0, 1] from the highlight focus."""
+    stops = [(0.0, (159, 232, 226), 0.97), (0.4, SOAP, 0.92), (0.75, SHEEN, 0.80), (1.0, SOAP, 0.72)]
+    for (t0, c0, a0), (t1, c1, a1) in zip(stops, stops[1:]):
+        if t <= t1:
+            f = (t - t0) / (t1 - t0) if t1 > t0 else 0
+            c = tuple(int(c0[i] + (c1[i] - c0[i]) * f) for i in range(3))
+            return c + (int(255 * (a0 + (a1 - a0) * f)),)
+    return SOAP + (int(255 * 0.72),)
+
+
+def render_mark(px, ss=8, simple=None):
+    """Render the mark at px×px on a transparent canvas (supersampled ss×).
+
+    simple (default: px <= 32) drops the thin shade band and the inner nut
+    ring, and thickens the bubble rim, so favicon sizes don't turn to mush.
+    """
+    if simple is None:
+        simple = px <= 32
+    S = px * ss
+    k = S / 128.0
+    P = lambda v: _u(v) * k
+    im = Image.new("RGBA", (S, S), (0, 0, 0, 0))
     d = ImageDraw.Draw(im, "RGBA")
-    elbow(d, 220, 300, scale=2.8)
-    im.save(SITE / "logo-512.png", optimize=True)
-    im.save(ROOT / "logo-512.png", optimize=True)
-    print("logo-512.png")
+    cx, cy = BEND_C
+    for off, w, col in _pipe_layers(simple):
+        r = BEND_R + off
+        half = w * LOGO_K * k / 2
+        y = cy + r
+        x = cx + r
+        # horizontal run, bend, vertical run, round caps
+        d.rectangle([P(PIPE_X0), P(y) - half, P(cx), P(y) + half], fill=col)
+        d.rectangle([P(x) - half, P(PIPE_Y1), P(x) + half, P(cy)], fill=col)
+        R = r * LOGO_K * k
+        d.arc([P(cx) - R - half, P(cy) - R - half, P(cx) + R + half, P(cy) + R + half],
+              0, 90, fill=col, width=int(round(2 * half)))
+        for ex, ey in ((PIPE_X0, y), (x, PIPE_Y1)):
+            d.ellipse([P(ex) - half, P(ey) - half, P(ex) + half, P(ey) + half], fill=col)
+    nut = ((15, (110, 63, 24)), (9, COPPER)) if simple else zip(NUT_R, ((110, 63, 24), COPPER_D, COPPER))
+    for rr, col in nut:
+        R = rr * LOGO_K * k
+        d.ellipse([P(NUT[0]) - R, P(NUT[1]) - R, P(NUT[0]) + R, P(NUT[1]) + R], fill=col)
+    # bubble: smooth radial fill (no concentric outline rings → no moiré)
+    bx, by, br = BUBBLE
+    BX, BY, BR = P(bx), P(by), br * LOGO_K * k
+    fx, fy = BX - 0.24 * BR, BY - 0.36 * BR
+    reach = 1.45 * BR
+    bub = Image.new("RGBA", (S, S), (0, 0, 0, 0))
+    x0, y0, x1, y1 = int(BX - BR) - 1, int(BY - BR) - 1, int(BX + BR) + 2, int(BY + BR) + 2
+    pix = bub.load()
+    for yy in range(max(0, y0), min(S, y1)):
+        for xx in range(max(0, x0), min(S, x1)):
+            if (xx - BX) ** 2 + (yy - BY) ** 2 <= BR * BR:
+                t = min(1.0, math.hypot(xx - fx, yy - fy) / reach)
+                pix[xx, yy] = _bubble_rgba(t)
+    im = Image.alpha_composite(im, bub)
+    d = ImageDraw.Draw(im, "RGBA")
+    rim = max(1, int(round((3.2 if simple else 1.8) * LOGO_K * k)))
+    d.ellipse([BX - BR, BY - BR, BX + BR, BY + BR], outline=SOAP + (255,), width=rim)
+    hx, hy = P(bx - 10), P(by - 11)
+    d.ellipse([hx - 8.5 * LOGO_K * k, hy - 4.8 * LOGO_K * k, hx + 8.5 * LOGO_K * k, hy + 4.8 * LOGO_K * k],
+              fill=(255, 255, 255, 150))
+    return im.resize((px, px), Image.LANCZOS)
+
+
+def mark_svg():
+    cx, cy = BEND_C
+    parts = []
+    for off, w, col in _pipe_layers():
+        r = BEND_R + off
+        y, x = cy + r, cx + r
+        dpath = "M%.2f %.2fH%.2fA%.2f %.2f 0 0 0 %.2f %.2fV%.2f" % (
+            _u(PIPE_X0), _u(y), _u(cx), r * LOGO_K, r * LOGO_K, _u(x), _u(cy), _u(PIPE_Y1))
+        parts.append('  <path d="%s" stroke="%s" stroke-width="%.2f" stroke-linecap="round"/>' % (dpath, _hex(col), w * LOGO_K))
+    for rr, col in zip(NUT_R, ((110, 63, 24), COPPER_D, COPPER)):
+        parts.append('  <circle cx="%.2f" cy="%.2f" r="%.2f" fill="%s"/>' % (_u(NUT[0]), _u(NUT[1]), rr * LOGO_K, _hex(col)))
+    bx, by, br = BUBBLE
+    parts.append('  <circle cx="%.2f" cy="%.2f" r="%.2f" fill="url(#b)" stroke="%s" stroke-width="%.2f"/>' % (
+        _u(bx), _u(by), br * LOGO_K, _hex(SOAP), 1.8 * LOGO_K))
+    parts.append('  <ellipse cx="%.2f" cy="%.2f" rx="%.2f" ry="%.2f" fill="#fff" fill-opacity=".59"/>' % (
+        _u(bx - 10), _u(by - 11), 8.5 * LOGO_K, 4.8 * LOGO_K))
+    return """<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" fill="none">
+  <!-- generated by scripts/make_assets.py (logo mark) -->
+  <defs>
+    <radialGradient id="b" cx="38%%" cy="32%%" r="72%%">
+      <stop offset="0%%" stop-color="#9fe8e2" stop-opacity=".97"/>
+      <stop offset="40%%" stop-color="%s" stop-opacity=".92"/>
+      <stop offset="75%%" stop-color="%s" stop-opacity=".8"/>
+      <stop offset="100%%" stop-color="%s" stop-opacity=".72"/>
+    </radialGradient>
+  </defs>
+%s
+</svg>
+""" % (_hex(SOAP), _hex(SHEEN), _hex(SOAP), "\n".join(parts))
+
+
+def logo512():
+    big = render_mark(512)
+    big.save(SITE / "logo-512.png", optimize=True)
+    big.save(ROOT / "logo-512.png", optimize=True)
+    render_mark(192).save(SITE / "icon-192.png", optimize=True)
+    render_mark(180).save(SITE / "apple-touch-icon.png", optimize=True)
+    i32, i16 = render_mark(32, ss=16), render_mark(16, ss=32)
+    i32.save(SITE / "favicon-32.png", optimize=True)
+    i16.save(SITE / "favicon-16.png", optimize=True)
+    i32.save(SITE / "favicon.ico", sizes=[(16, 16), (32, 32)], append_images=[i16])
+    svg = mark_svg()
+    (SITE / "logo.svg").write_text(svg)
+    (SITE / "favicon.svg").write_text(svg)
+    print("logo-512.png, icon-192.png, apple-touch-icon.png, favicon-32/16.png, favicon.ico, logo.svg, favicon.svg")
+
 
 def card(w, h, path):
     im = Image.new("RGB", (w, h), CONCRETE)
@@ -211,6 +355,9 @@ if __name__ == "__main__":
     import sys
     if sys.argv[1:] == ["demo"]:
         demo_gif()
+        sys.exit(0)
+    if sys.argv[1:] == ["logo"]:
+        logo512()
         sys.exit(0)
     logo512()
     card(1200, 630, "og.png")
