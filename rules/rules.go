@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"runtime"
@@ -341,6 +342,14 @@ func (HookMissing) ID() string { return "hook-missing" }
 // "No such file" / "can't open" stderr to non-blocking (claude-code#99171).
 var exit2BlockingEvents = map[string]bool{"PreToolUse": true, "PermissionRequest": true, "UserPromptSubmit": true}
 
+// interpreterAvailable reports whether the shell could start exe, looked up
+// on this process's PATH (or as a path when it contains a slash). The agent
+// may run with a different PATH; this is the audit machine's view.
+func interpreterAvailable(exe string) bool {
+	_, err := exec.LookPath(exe)
+	return err == nil
+}
+
 // Interpreters that exit 2 when the script file cannot be opened.
 func exitsTwoOnMissingScript(interp string) bool {
 	return strings.HasPrefix(interp, "python") || interp == "perl"
@@ -465,16 +474,36 @@ func checkHookCommand(sc hookScope, event, field, cmd string, opts hookOpts, out
 	if !ok {
 		return // bare command on PATH, inline code, or not statically resolvable
 	}
+	label := field
+	if event != "" {
+		label = event + " " + field
+	}
+	if inv.Exe != "" && !interpreterAvailable(inv.Exe) {
+		// The shell can't find the interpreter: exit 127 ("command not found"),
+		// a non-blocking error, so the tool call goes ahead. This outranks the
+		// script checks below (python3 never runs, so it never exits 2).
+		f := report.Finding{
+			ID: "hook-missing", Harness: sc.cfg.Harness, File: sc.cfg.Path, Severity: report.FailOpen,
+			Evidence: quoteEvidence(fmt.Sprintf("%s %q needs %s, which is not on this machine's PATH — the shell exits 127", label, cmd, inv.Exe), 240),
+			Fix:      fmt.Sprintf("Install %s or point the hook at an interpreter that exists: a hook that cannot start is a non-blocking error, so the tool call goes through.", inv.Exe),
+		}
+		if sc.cfg.Harness == "claude-code" {
+			f.Fix += onFailureHint
+		}
+		if blocksOnFailure(opts, event) {
+			f.Severity = report.FailShut
+			f.Evidence = quoteEvidence(fmt.Sprintf("%s %q needs %s, which is not on this machine's PATH; onFailure \"block\", so matching calls are blocked, not allowed", label, cmd, inv.Exe), 240)
+			f.Fix = fmt.Sprintf("Install %s or fix the interpreter; until then every matching tool call is blocked and the hook's policy never runs.", inv.Exe)
+		}
+		*out = append(*out, f)
+		return
+	}
 	resolved := inv.Script
 	if !filepath.IsAbs(resolved) {
 		if sc.relBase == "" {
 			return // relative to an unknown session cwd: do not guess
 		}
 		resolved = filepath.Join(sc.relBase, resolved)
-	}
-	label := field
-	if event != "" {
-		label = event + " " + field
 	}
 	st, err := os.Stat(resolved)
 	if err != nil || st.IsDir() {

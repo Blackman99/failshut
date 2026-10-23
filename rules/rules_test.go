@@ -353,3 +353,20 @@ func TestHookMissingOnFailureNotExecutable(t *testing.T) {
 		t.Fatalf("want FAIL SHUT not-executable, got %#v", fs)
 	}
 }
+
+func TestHookInterpreterMissing(t *testing.T) {
+	t.Setenv("PATH", t.TempDir())
+	root := filepath.Join(fixtureRoot(t), "hook-interpreter-missing")
+	fs := run(t, rules.HookMissing{}, load(t, filepath.Join(root, "home"), ""))
+	if len(fs) != 3 || countSev(fs, report.FailOpen) != 2 || countSev(fs, report.FailShut) != 1 {
+		t.Fatalf("want 2 FAIL OPEN + 1 FAIL SHUT, got %#v", fs)
+	}
+	for _, f := range fs {
+		if !strings.Contains(f.Evidence, "not on this machine's PATH") {
+			t.Fatalf("evidence should name the missing interpreter: %s", f.Evidence)
+		}
+		if f.Severity == report.FailShut && !strings.Contains(f.Evidence, "onFailure") {
+			t.Fatalf("only the onFailure hook may be FAIL SHUT: %s", f.Evidence)
+		}
+	}
+}
