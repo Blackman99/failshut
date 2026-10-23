@@ -342,7 +342,6 @@ func (HookMissing) ID() string { return "hook-missing" }
 // "No such file" / "can't open" stderr to non-blocking (claude-code#99171).
 var exit2BlockingEvents = map[string]bool{"PreToolUse": true, "PermissionRequest": true, "UserPromptSubmit": true}
 
-// Interpreters that exit 2 when the script file cannot be opened.
 // interpreterAvailable reports whether the shell could start exe, looked up
 // on this process's PATH (or as a path when it contains a slash). The agent
 // may run with a different PATH; this is the audit machine's view.
@@ -351,6 +350,7 @@ func interpreterAvailable(exe string) bool {
 	return err == nil
 }
 
+// Interpreters that exit 2 when the script file cannot be opened.
 func exitsTwoOnMissingScript(interp string) bool {
 	return strings.HasPrefix(interp, "python") || interp == "perl"
 }
