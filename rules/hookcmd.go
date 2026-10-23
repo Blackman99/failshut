@@ -10,6 +10,7 @@ import (
 type hookInvocation struct {
 	Script      string // script path after quote removal and $VAR / ~ expansion
 	Interpreter string // basename of the interpreter ("bash", "python3"), "" when the script is run directly
+	Exe         string // the interpreter word as written ("python3", "/usr/bin/python3"), "" when the script is run directly
 }
 
 // splitShellWords splits a hook command the way a POSIX shell would for one
@@ -233,7 +234,7 @@ func parseHookCommand(cmd string, env map[string]string) (hookInvocation, bool) 
 			if strings.HasPrefix(a, "-") {
 				continue
 			}
-			return hookInvocation{Script: a, Interpreter: interp}, true
+			return hookInvocation{Script: a, Interpreter: interp, Exe: exe}, true
 		}
 		return hookInvocation{}, false // interpreter reading stdin
 	}

@@ -1,0 +1,9 @@
+{
+  "hooks": {
+    "PreToolUse": [
+      { "matcher": "Write", "hooks": [ { "type": "command", "command": "python3 ~/.claude/hooks/guard.py" } ] },
+      { "matcher": "Bash", "hooks": [ { "type": "command", "command": "python3 ~/.claude/hooks/gone.py" } ] },
+      { "matcher": "Edit", "hooks": [ { "type": "command", "command": "python3 ~/.claude/hooks/guard.py", "onFailure": "block" } ] }
+    ]
+  }
+}
