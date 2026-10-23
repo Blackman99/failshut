@@ -326,7 +326,8 @@ func checkAskMismatch(c discover.Config, m map[string]any, prefix string, out *[
 
 // HookMissing flags hook commands whose script is missing or cannot be run.
 //
-// Claude Code treats a hook that exits with any code other than 2 as a
+// Unless the hook sets "onFailure": "block" (Claude Code v2.1.295+), Claude
+// Code treats a hook that exits with any code other than 2 as a
 // non-blocking error and lets the tool call proceed, so a hook whose script is
 // gone fails open (claude-code#32990, #102649). The command string is parsed
 // like a shell would (quotes, ~, $HOME, $CLAUDE_PROJECT_DIR, interpreter
@@ -392,12 +393,12 @@ func (HookMissing) Run(ctx Context) ([]report.Finding, error) {
 		if plugins := asMap(m["plugins"]); plugins != nil {
 			for name, pv := range plugins {
 				if s, ok := pv.(string); ok {
-					checkHookCommand(sc, "", fmt.Sprintf("plugins.%s", name), s, &out)
+					checkHookCommand(sc, "", fmt.Sprintf("plugins.%s", name), s, hookOpts{}, &out)
 				}
 				if pm := asMap(pv); pm != nil {
 					for _, k := range []string{"path", "command", "script", "entry"} {
 						if s, ok := pm[k].(string); ok && s != "" {
-							checkHookCommand(sc, "", fmt.Sprintf("plugins.%s.%s", name, k), s, &out)
+							checkHookCommand(sc, "", fmt.Sprintf("plugins.%s.%s", name, k), s, hookOpts{}, &out)
 						}
 					}
 				}
@@ -419,24 +420,47 @@ func collectHooks(sc hookScope, event string, v any, out *[]report.Finding) {
 				if typ, _ := m["type"].(string); typ != "" && typ != "command" {
 					continue // prompt / agent / http hooks have no script file
 				}
+				opts := hookOpts{}
+				if sc.cfg.Harness == "claude-code" {
+					of, _ := m["onFailure"].(string)
+					opts.block = of == "block"
+					opts.async = m["async"] == true || m["asyncRewake"] == true
+				}
 				for _, k := range []string{"command", "path", "script"} {
 					if s, ok := m[k].(string); ok && s != "" {
-						checkHookCommand(sc, event, k, s, out)
+						checkHookCommand(sc, event, k, s, opts, out)
 					}
 				}
 				if nested := m["hooks"]; nested != nil {
 					collectHooks(sc, event, nested, out)
 				}
 			} else if s, ok := item.(string); ok {
-				checkHookCommand(sc, event, "hooks", s, out)
+				checkHookCommand(sc, event, "hooks", s, hookOpts{}, out)
 			}
 		}
 	case string:
-		checkHookCommand(sc, event, "hooks", t, out)
+		checkHookCommand(sc, event, "hooks", t, hookOpts{}, out)
 	}
 }
 
-func checkHookCommand(sc hookScope, event, field, cmd string, out *[]report.Finding) {
+// hookOpts carries per-hook-entry options that change what a failure does.
+type hookOpts struct {
+	block bool // "onFailure": "block" (Claude Code v2.1.295+)
+	async bool // "async" / "asyncRewake": onFailure has no effect
+}
+
+// blocksOnFailure reports whether Claude Code turns a failure of this hook
+// (can't start, non-0/2 exit, timeout) into a block. Per the hooks docs,
+// "onFailure": "block" makes a failure act like exit 2 on that event, and has
+// no effect on Stop, SubagentStop, TaskCompleted, TeammateIdle or async hooks.
+// We only treat events where exit 2 gates the action as broken shut.
+func blocksOnFailure(opts hookOpts, event string) bool {
+	return opts.block && !opts.async && exit2BlockingEvents[event]
+}
+
+const onFailureHint = ` Or add "onFailure": "block" to the hook (Claude Code v2.1.295+) so a failed hook blocks the call.`
+
+func checkHookCommand(sc hookScope, event, field, cmd string, opts hookOpts, out *[]report.Finding) {
 	inv, ok := parseHookCommand(cmd, sc.env)
 	if !ok {
 		return // bare command on PATH, inline code, or not statically resolvable
@@ -457,9 +481,17 @@ func checkHookCommand(sc hookScope, event, field, cmd string, out *[]report.Find
 		f := report.Finding{
 			ID: "hook-missing", Harness: sc.cfg.Harness, File: sc.cfg.Path, Severity: report.FailOpen,
 			Evidence: quoteEvidence(fmt.Sprintf("%s %q runs %s — missing", label, cmd, resolved), 240),
-			Fix:      "Restore the hook script or fix the path. A hook that cannot start exits non-2, and Claude Code lets the tool call through.",
+			Fix:      "Restore the hook script or fix the path: a hook that cannot start is a non-blocking error, so Claude Code lets the tool call through.",
 		}
-		if sc.cfg.Harness == "claude-code" && exitsTwoOnMissingScript(inv.Interpreter) && exit2BlockingEvents[event] {
+		if sc.cfg.Harness == "claude-code" {
+			f.Fix += onFailureHint
+		}
+		if blocksOnFailure(opts, event) {
+			// onFailure "block": the hook never runs its policy, but its failure blocks every matching call.
+			f.Severity = report.FailShut
+			f.Evidence = quoteEvidence(fmt.Sprintf("%s %q runs %s — missing; onFailure \"block\", so matching calls are blocked, not allowed", label, cmd, resolved), 240)
+			f.Fix = "Restore the hook script or fix the path; until then every matching tool call is blocked and the hook's policy never runs."
+		} else if sc.cfg.Harness == "claude-code" && exitsTwoOnMissingScript(inv.Interpreter) && exit2BlockingEvents[event] {
 			// python3/perl exit 2 on a missing script, which Claude Code treats as a block:
 			// the gate is broken shut (every matching call blocked), not open.
 			f.Severity = report.FailShut
@@ -470,11 +502,21 @@ func checkHookCommand(sc hookScope, event, field, cmd string, out *[]report.Find
 		return
 	}
 	if inv.Interpreter == "" && runtime.GOOS != "windows" && st.Mode()&0o111 == 0 {
-		*out = append(*out, report.Finding{
+		f := report.Finding{
 			ID: "hook-missing", Harness: sc.cfg.Harness, File: sc.cfg.Path, Severity: report.FailOpen,
 			Evidence: quoteEvidence(fmt.Sprintf("%s %q runs %s directly but it is not executable (mode %s)", label, cmd, resolved, st.Mode()), 240),
 			Fix:      "chmod +x the hook script, or invoke it through its interpreter (bash/python3/node).",
-		})
+		}
+		if sc.cfg.Harness == "claude-code" {
+			f.Fix += onFailureHint
+		}
+		if blocksOnFailure(opts, event) {
+			// Can't start (exit 126) counts as a failure, so onFailure "block" blocks the call.
+			f.Severity = report.FailShut
+			f.Evidence = quoteEvidence(fmt.Sprintf("%s %q runs %s directly but it is not executable (mode %s); onFailure \"block\", so matching calls are blocked", label, cmd, resolved, st.Mode()), 240)
+			f.Fix = "chmod +x the hook script, or invoke it through its interpreter; until then every matching tool call is blocked."
+		}
+		*out = append(*out, f)
 	}
 }
 

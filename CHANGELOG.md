@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Fixed
+- **`hook-missing` respects `"onFailure": "block"`** ([#7](https://github.com/Blackman99/failshut/issues/7)). Since Claude Code v2.1.295 a hook entry with `"onFailure": "block"` blocks the call when it can't start ([docs](https://code.claude.com/docs/en/hooks#block-the-action-when-a-hook-fails)). A missing or non-executable script on such a hook (PreToolUse, PermissionRequest, UserPromptSubmit) is now FAIL_SHUT with a note that every matching call is blocked, not a false FAIL OPEN. Stop-family and `async`/`asyncRewake` hooks, where `onFailure` has no effect, stay FAIL OPEN.
+- `hook-missing` fix text no longer claims every missing hook lets calls through, and suggests adding `"onFailure": "block"` (Claude Code v2.1.295+) alongside restoring the script.
+
+### Added
+- Human report prints FAIL_SHUT findings (hooks broken shut) under a **Note** section; previously they appeared only in `--json`.
+
 ### Changed
 - Logo recentred and rebalanced so the mark fills the canvas. `scripts/make_assets.py logo` now generates logo-512.png, icon-192.png, apple-touch-icon.png, favicon-32/16.png, favicon.ico, logo.svg and favicon.svg from one geometry. Favicon sizes use a simplified variant.
 
