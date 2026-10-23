@@ -68,11 +68,16 @@ func WriteHuman(w io.Writer, r Result, c Colors) {
 	}
 
 	opens := make([]Finding, 0)
+	notes := make([]Finding, 0) // FAIL_SHUT findings: broken shut (calls blocked), worth knowing
 	for _, f := range r.Findings {
-		if f.Severity == FailOpen {
+		switch f.Severity {
+		case FailOpen:
 			opens = append(opens, f)
+		case FailShut:
+			notes = append(notes, f)
 		}
 	}
+	defer writeNotes(w, notes, c)
 	shuts := r.FailShut // rules that came back sealed
 
 	if len(opens) == 0 {
@@ -96,4 +101,21 @@ func WriteHuman(w io.Writer, r Result, c Colors) {
 	}
 	fmt.Fprintf(w, "%sSummary:%s %s%d FAIL OPEN%s · %s%d FAIL SHUT checks%s · %d config(s)\n",
 		c.Bold, c.Reset, c.Red, len(opens), c.Reset, c.Green, shuts, c.Reset, r.Configs)
+}
+
+// writeNotes prints FAIL_SHUT findings: the gate is broken but fails closed.
+func writeNotes(w io.Writer, notes []Finding, c Colors) {
+	if len(notes) == 0 {
+		return
+	}
+	fmt.Fprintf(w, "\n%sNote%s — %d hook(s) broken shut (matching calls are blocked, policy never runs):\n", c.Bold, c.Reset, len(notes))
+	for _, f := range notes {
+		ev := strings.TrimSpace(f.Evidence)
+		if len(ev) > 200 {
+			ev = ev[:197] + "..."
+		}
+		fmt.Fprintf(w, "  %s%s%s  %s(%s)%s %s\n", c.Dim, f.ID, c.Reset, c.Dim, f.Harness, c.Reset, f.File)
+		fmt.Fprintf(w, "    evidence: %s\n", ev)
+		fmt.Fprintf(w, "    fix:      %s\n", f.Fix)
+	}
 }

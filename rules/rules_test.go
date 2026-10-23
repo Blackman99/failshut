@@ -291,3 +291,65 @@ func TestDelegationEscalate55814Sealed(t *testing.T) {
 		t.Fatalf("maintainer workaround must be sealed, got %#v", fs)
 	}
 }
+
+func onFailureFixture(t *testing.T, id string) []report.Finding {
+	t.Helper()
+	root := filepath.Join(fixtureRoot(t), id)
+	return run(t, rules.HookMissing{}, load(t, t.TempDir(), filepath.Join(root, "project")))
+}
+
+// onFailure "block" (Claude Code v2.1.295+): a hook that cannot start blocks the call.
+func TestHookMissingOnFailureBlock(t *testing.T) {
+	fs := onFailureFixture(t, "hook-missing-onfailure-block")
+	if len(fs) != 1 || fs[0].Severity != report.FailShut || !strings.Contains(fs[0].Evidence, "onFailure") {
+		t.Fatalf("want one FAIL SHUT hook-missing note, got %#v", fs)
+	}
+	if strings.Contains(fs[0].Fix, "lets the tool call through") {
+		t.Fatalf("fix text wrong for block case: %s", fs[0].Fix)
+	}
+}
+
+func TestHookMissingOnFailureUnsetOrContinue(t *testing.T) {
+	fs := onFailureFixture(t, "hook-missing-onfailure-unset")
+	if len(fs) != 2 || countSev(fs, report.FailOpen) != 2 {
+		t.Fatalf("want two FAIL OPEN, got %#v", fs)
+	}
+	for _, f := range fs {
+		if !strings.Contains(f.Fix, `"onFailure": "block"`) || !strings.Contains(f.Fix, "v2.1.295") {
+			t.Fatalf("fix should suggest onFailure block: %s", f.Fix)
+		}
+	}
+}
+
+func TestHookMissingOnFailureSealed(t *testing.T) {
+	if fs := onFailureFixture(t, "hook-missing-onfailure-sealed"); len(fs) != 0 {
+		t.Fatalf("want no findings, got %#v", fs)
+	}
+}
+
+// onFailure has no effect on Stop-family or async hooks.
+func TestHookMissingOnFailureNoEffect(t *testing.T) {
+	fs := onFailureFixture(t, "hook-missing-onfailure-noeffect")
+	if len(fs) != 2 || countSev(fs, report.FailOpen) != 2 {
+		t.Fatalf("want Stop and async hooks FAIL OPEN, got %#v", fs)
+	}
+}
+
+func TestHookMissingOnFailureNotExecutable(t *testing.T) {
+	proj := t.TempDir()
+	hooks := filepath.Join(proj, ".claude", "hooks")
+	if err := os.MkdirAll(hooks, 0o755); err != nil {
+		t.Fatal(err)
+	}
+	if err := os.WriteFile(filepath.Join(hooks, "g.sh"), []byte("#!/bin/sh\n"), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	settings := `{"hooks":{"PreToolUse":[{"hooks":[{"type":"command","command":"\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/g.sh","onFailure":"block"}]}]}}`
+	if err := os.WriteFile(filepath.Join(proj, ".claude", "settings.json"), []byte(settings), 0o644); err != nil {
+		t.Fatal(err)
+	}
+	fs := run(t, rules.HookMissing{}, load(t, t.TempDir(), proj))
+	if len(fs) != 1 || fs[0].Severity != report.FailShut || !strings.Contains(fs[0].Evidence, "not executable") {
+		t.Fatalf("want FAIL SHUT not-executable, got %#v", fs)
+	}
+}

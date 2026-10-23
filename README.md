@@ -37,7 +37,7 @@ FAIL OPEN — 1 finding(s) where policy may not hold:
 [1] hook-missing  (claude-code)
     file:     /home/you/app/.claude/settings.json
     evidence: PreToolUse command "\"$CLAUDE_PROJECT_DIR\"/.claude/hooks/block-src-writes.sh" runs /home/you/app/.claude/hooks/block-src-writes.sh — missing
-    fix:      Restore the hook script or fix the path. A hook that cannot start exits non-2, and Claude Code lets the tool call through.
+    fix:      Restore the hook script or fix the path: a hook that cannot start is a non-blocking error, so Claude Code lets the tool call through. Or add "onFailure": "block" to the hook (Claude Code v2.1.295+) so a failed hook blocks the call.
 
 Summary: 1 FAIL OPEN · 5 FAIL SHUT checks · 1 config(s)
 ```
@@ -52,7 +52,7 @@ Exit `1` on any FAIL OPEN · `0` if sealed or nothing configured.
 
 | ID | Catches |
 |---|---|
-| `hook-missing` | Claude Code hook whose script is missing or not executable. The command is parsed like a shell would: `bash`/`sh`/`python3`/`node` prefixes, quotes, `~`, `$HOME`, `"$CLAUDE_PROJECT_DIR"/…`. Nothing is executed. |
+| `hook-missing` | Claude Code hook whose script is missing or not executable. The command is parsed like a shell would: `bash`/`sh`/`python3`/`node` prefixes, quotes, `~`, `$HOME`, `"$CLAUDE_PROJECT_DIR"/…`. Nothing is executed. A hook with `"onFailure": "block"` (Claude Code v2.1.295+) on PreToolUse / PermissionRequest / UserPromptSubmit fails shut instead and is printed as a note (calls blocked, policy never runs); Stop-family and `async` hooks ignore `onFailure` and stay FAIL OPEN. |
 | `deny-ignored` | OpenCode `read`/`edit` deny/ask rule the runtime never matches: a `./`-prefixed resource, or an absolute resource inside the project |
 | `delegation-escalate` | OpenCode agent (incl. `plan`) that denies edit but can still launch the write-capable `general` subagent |
 | `path-traversal-config` | `..` in `--project` or OpenCode path fields that can load a sibling config |

@@ -1,0 +1,1 @@
+onFailure "block" (Claude Code v2.1.295+) + missing script on PreToolUse: the hook cannot start, so Claude Code blocks every matching call. FAIL SHUT (broken shut), not FAIL OPEN. https://code.claude.com/docs/en/hooks
