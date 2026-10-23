@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+## v0.1.3 — 2026-10-24
+
+### Fixed
+
 - `hook-missing`: a hook whose interpreter (e.g. `python3`) is not on PATH is now FAIL OPEN (shell exit 127, non-blocking), or FAIL SHUT with `"onFailure": "block"`. Previously it was silent when the script existed, and mis-scored FAIL SHUT when the script was also missing.
 
 ## v0.1.2 — 2026-10-23
