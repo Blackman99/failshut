@@ -14,7 +14,7 @@ Pain this comes from (see [Coverage](#coverage) for what v0.1 actually detects):
 
 ```bash
 # Linux amd64 example — see Releases for darwin/windows + arm64
-curl -sL https://github.com/Blackman99/failshut/releases/download/v0.1.2/failshut_0.1.2_linux_amd64.tar.gz | tar xz
+curl -sL https://github.com/Blackman99/failshut/releases/download/v0.1.3/failshut_0.1.3_linux_amd64.tar.gz | tar xz
 ./failshut audit
 ```
 
